@@ -1,9 +1,10 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet, View, Button } from 'react-native';
+import { View, Button, StyleSheet } from 'react-native';
 import Login from './Login';
 import SignUp from './SignUp';
+import MainPage from './MainPage';
 
 const HomeScreen = ({ navigation }) => {
     const handlePress = () => {
@@ -23,9 +24,10 @@ const App = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator initialRouteName="Home">
-                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Home" component={HomeScreen} /> 
                 <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen name="SignUp" component={SignUp} />
+                <Stack.Screen name="MainPage" component={MainPage} />
             </Stack.Navigator>
         </NavigationContainer>
     );

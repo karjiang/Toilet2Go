@@ -5,9 +5,14 @@ const Login = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
+    const handlePress = () => {
+        navigation.navigate('Login');
+    };
+
     const handleLogin = () => {
         // You can add your login logic here
         Alert.alert('Login', `Username: ${username}, Password: ${password}`);
+        navigation.navigate('MainPage');
     };
 
     return (

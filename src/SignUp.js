@@ -10,6 +10,7 @@ const SignUp = ({ navigation }) => {
 
     const handleSignUp = () => {
         // Add your sign-up logic here
+        navigation.navigate('MainPage');
         alert(`Username: ${username}, Password: ${password}, Confirm Password: ${confirmPassword}, Email: ${email}, Phone: ${phone}`);
     };
 
