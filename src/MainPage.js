@@ -1,34 +1,31 @@
 import React from 'react';
-import { Text, StyleSheet, View, Button } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import MapboxGL from '@rnmapbox/maps';
+import { MAPBOX_ACCESS_TOKEN } from '@env';
 
-const MainPage = ({ navigation }) => {
-    const handlePress = () => {
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'Home' }], // Use 'Home' as this is your initial screen
-        });
-    };
+// Set the Mapbox access token
+MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Main Page ( map, etc )</Text>
-            {/* Add your components here */}
-            <Button title="Back to Start" onPress={handlePress} />
-        </View>
-    );
+const MainPage = () => {
+  return (
+    <View style={styles.container}>
+      <MapboxGL.MapView style={styles.map}>
+        <MapboxGL.Camera
+          zoomLevel={8}
+          centerCoordinate={[-73.935242, 40.730610]} // Coordinates for New York City
+        />
+      </MapboxGL.MapView>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-    },
-    title: {
-        fontSize: 24,
-        marginBottom: 16,
-    },
+  container: {
+    flex: 1,
+  },
+  map: {
+    flex: 1,
+  },
 });
 
 export default MainPage;

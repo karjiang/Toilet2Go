@@ -1,15 +1,31 @@
-# Resolve react_native_pods.rb with node to allow for hoisting
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
+# Define a method to resolve the path of react_native_pods.rb using node
+require 'open3'
+
+$RNMapboxMapsImpl = 'mapbox'
+
+def resolve_react_native_pods_rb
+  stdout, stderr, status = Open3.capture3("node", "-p", <<~JS, __dir__)
+    require.resolve(
+      "react-native/scripts/react_native_pods.rb",
+      {paths: [process.argv[1]]},
+    )
+  JS
+
+  unless status.success?
+    raise stderr
+  end
+
+  stdout.strip
+end
+
+# Require the resolved path
+require resolve_react_native_pods_rb
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
+if linkage
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
 end
@@ -31,7 +47,6 @@ target 'Toilet2Go' do
   pre_install do |installer|
     $RNMapboxMaps.pre_install(installer)
   end
-
 
   post_install do |installer|
     $RNMapboxMaps.post_install(installer)

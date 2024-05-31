@@ -7,6 +7,15 @@ PODS:
   - hermes-engine (0.74.1):
     - hermes-engine/Pre-built (= 0.74.1)
   - hermes-engine/Pre-built (0.74.1)
+  - MapboxCommon (23.9.2)
+  - MapboxCoreMaps (10.17.0):
+    - MapboxCommon (~> 23.9)
+  - MapboxMaps (10.17.0):
+    - MapboxCommon (= 23.9.2)
+    - MapboxCoreMaps (= 10.17.0)
+    - MapboxMobileEvents (= 1.0.10)
+    - Turf (= 2.7.0)
+  - MapboxMobileEvents (1.0.10)
   - RCT-Folly (2024.01.01.00):
     - boost
     - DoubleConversion
@@ -935,7 +944,9 @@ PODS:
   - React-Mapbuffer (0.74.1):
     - glog
     - React-debug
-  - react-native-safe-area-context (4.10.1):
+  - react-native-leaflet (0.1.2):
+    - React-Core
+  - react-native-safe-area-context (4.10.3):
     - React-Core
   - react-native-webview (13.10.2):
     - DoubleConversion
@@ -1208,6 +1219,17 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - rnmapbox-maps (10.1.24):
+    - MapboxMaps (~> 10.17.0)
+    - React
+    - React-Core
+    - rnmapbox-maps/DynamicLibrary (= 10.1.24)
+    - Turf
+  - rnmapbox-maps/DynamicLibrary (10.1.24):
+    - MapboxMaps (~> 10.17.0)
+    - React
+    - React-Core
+    - Turf
   - RNScreens (3.31.1):
     - DoubleConversion
     - glog
@@ -1231,6 +1253,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SocketRocket (0.7.0)
+  - Turf (2.7.0)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -1266,6 +1289,7 @@ DEPENDENCIES:
   - React-jsitracing (from `../node_modules/react-native/ReactCommon/hermes/executor/`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - react-native-leaflet (from `../node_modules/react-native-leaflet-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
@@ -1292,12 +1316,18 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - "rnmapbox-maps (from `../node_modules/@rnmapbox/maps`)"
   - RNScreens (from `../node_modules/react-native-screens`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
+    - MapboxCommon
+    - MapboxCoreMaps
+    - MapboxMaps
+    - MapboxMobileEvents
     - SocketRocket
+    - Turf
 
 EXTERNAL SOURCES:
   boost:
@@ -1361,6 +1391,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-leaflet:
+    :path: "../node_modules/react-native-leaflet-view"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-webview:
@@ -1413,6 +1445,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  rnmapbox-maps:
+    :path: "../node_modules/@rnmapbox/maps"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   Yoga:
@@ -1425,6 +1459,10 @@ SPEC CHECKSUMS:
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: 16b8530de1b383cdada1476cf52d1b52f0692cbc
+  MapboxCommon: 768660d6fca8193529ecf82eb6f5f9ae7a5acdf9
+  MapboxCoreMaps: be412ff97b16aa7820922c818115a9a0d8211caa
+  MapboxMaps: 87ef0003e6db46e45e7a16939f29ae87e38e7ce2
+  MapboxMobileEvents: de50b3a4de180dd129c326e09cd12c8adaaa46d6
   RCT-Folly: 02617c592a293bd6d418e0a88ff4ee1f88329b47
   RCTDeprecation: efb313d8126259e9294dc4ee0002f44a6f676aba
   RCTRequired: f49ea29cece52aee20db633ae7edc4b271435562
@@ -1449,7 +1487,8 @@ SPEC CHECKSUMS:
   React-jsitracing: 233d1a798fe0ff33b8e630b8f00f62c4a8115fbc
   React-logger: 7e7403a2b14c97f847d90763af76b84b152b6fce
   React-Mapbuffer: 11029dcd47c5c9e057a4092ab9c2a8d10a496a33
-  react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
+  react-native-leaflet: cead07656af59e80164379f6ec9f11a012d7725c
+  react-native-safe-area-context: b01d8f42d4e62a7be5a3e69fd332e0c7e67584c7
   react-native-webview: 2905d1455be11bcbd909ef33472d8fcdf7abcc41
   React-nativeconfig: b0073a590774e8b35192fead188a36d1dca23dec
   React-NativeModulesApple: df46ff3e3de5b842b30b4ca8a6caae6d7c8ab09f
@@ -1475,10 +1514,12 @@ SPEC CHECKSUMS:
   React-utils: 3285151c9d1e3a28a9586571fc81d521678c196d
   ReactCommon: f42444e384d82ab89184aed5d6f3142748b54768
   RNGestureHandler: 2282cfbcf86c360d29f44ace393203afd5c6cff7
+  rnmapbox-maps: 8005faa8e35b413ea5f387d8e057e9c2d7bcfbff
   RNScreens: b32a9ff15bea7fcdbe5dff6477bc503f792b1208
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
+  Turf: 13d1a92d969ca0311bbc26e8356cca178ce95da2
   Yoga: b9a182ab00cf25926e7f79657d08c5d23c2d03b0
 
-PODFILE CHECKSUM: 7dc7f38a711deec563466d7715d4ae5ea8c3aa6b
+PODFILE CHECKSUM: 0d11716d04ec645faaa2f6ec006d5825fcc4fa1f
 
 COCOAPODS: 1.15.2
