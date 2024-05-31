@@ -11,8 +11,8 @@ const MainPage = () => {
     <View style={styles.container}>
       <MapboxGL.MapView style={styles.map}>
         <MapboxGL.Camera
-          zoomLevel={8}
-          centerCoordinate={[-73.935242, 40.730610]} // Coordinates for New York City
+          zoomLevel={14}
+          centerCoordinate={[-118.2842911, 34.0213524]} // Coordinates for New York City
         />
       </MapboxGL.MapView>
     </View>
