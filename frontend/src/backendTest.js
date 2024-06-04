@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, FlatList, Alert } from 'react-native';
 
 const BackendTest = () => {
     const [firstName, setFirstName] = useState('');
@@ -9,16 +9,26 @@ const BackendTest = () => {
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [users, setUsers] = useState([]);
+    const [name, setName] = useState('');
+    const [latitude, setLatitude] = useState('');
+    const [longitude, setLongitude] = useState('');
+    const [rating, setRating] = useState('');
+    const [restrooms, setRestrooms] = useState([]);
 
     const handleAddUser = () => {
-        fetch('http://0.0.0.0:5000/users', {
+        fetch('http://192.168.0.117:5000/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ firstName, lastName, username, password, email, phone }),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             setUsers([...users, data]);
             setFirstName('');
@@ -32,9 +42,58 @@ const BackendTest = () => {
     };
 
     const handleFetchUsers = () => {
-        fetch('http://0.0.0.0:5000/users')
-        .then(response => response.json())
-        .then(data => setUsers(data))
+        fetch('http://192.168.0.117:5000/users')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            setUsers(data);
+            const userExists = data.some(user => user.firstName === firstName && user.lastName === lastName);
+            if (userExists) {
+                Alert.alert('User Exists', 'true');
+            } else {
+                Alert.alert('User Exists', 'false');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    };
+
+    const handleAddRestroom = () => {
+        fetch('http://192.168.0.117:5000/restrooms', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, latitude: parseFloat(latitude), longitude: parseFloat(longitude), rating: parseFloat(rating) }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            setRestrooms([...restrooms, data]);
+            setName('');
+            setLatitude('');
+            setLongitude('');
+            setRating('');
+        })
+        .catch(error => console.error('Error:', error));
+    };
+
+    const handleFetchRestrooms = () => {
+        fetch('http://192.168.0.117:5000/restrooms')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => setRestrooms(data))
         .catch(error => console.error('Error:', error));
     };
 
@@ -66,8 +125,8 @@ const BackendTest = () => {
                 placeholder="Password"
                 value={password}
                 onChangeText={setPassword}
-                autoCapitalize="none"
                 secureTextEntry
+                autoCapitalize="none"
             />
             <TextInput
                 style={styles.input}
@@ -98,6 +157,53 @@ const BackendTest = () => {
                     </View>
                 )}
             />
+
+            <TextInput
+                style={styles.input}
+                placeholder="Restroom Name"
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="none"
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Latitude"
+                value={latitude}
+                onChangeText={setLatitude}
+                autoCapitalize="none"
+                keyboardType="numeric"
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Longitude"
+                value={longitude}
+                onChangeText={setLongitude}
+                autoCapitalize="none"
+                keyboardType="numeric"
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Rating"
+                value={rating}
+                onChangeText={setRating}
+                autoCapitalize="none"
+                keyboardType="numeric"
+            />
+            <Button title="Add Restroom" onPress={handleAddRestroom} />
+            <Button title="Fetch Restrooms" onPress={handleFetchRestrooms} />
+
+            <FlatList
+                data={restrooms}
+                keyExtractor={item => item._id}
+                renderItem={({ item }) => (
+                    <View style={styles.restroom}>
+                        <Text>{item.name}</Text>
+                        <Text>{item.latitude}</Text>
+                        <Text>{item.longitude}</Text>
+                        <Text>{item.rating}</Text>
+                    </View>
+                )}
+            />
         </View>
     );
 };
@@ -115,6 +221,11 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     user: {
+        padding: 16,
+        borderBottomColor: 'gray',
+        borderBottomWidth: 1,
+    },
+    restroom: {
         padding: 16,
         borderBottomColor: 'gray',
         borderBottomWidth: 1,
