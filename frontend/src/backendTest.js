@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, FlatList, Alert } from 'react-native';
+import { getUsers, addUser, getRestrooms, addRestroom } from './api';
 
 const BackendTest = () => {
     const [firstName, setFirstName] = useState('');
@@ -15,21 +16,9 @@ const BackendTest = () => {
     const [rating, setRating] = useState('');
     const [restrooms, setRestrooms] = useState([]);
 
-    const handleAddUser = () => {
-        fetch('http://192.168.0.117:5000/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ firstName, lastName, username, password, email, phone }),
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
+    const handleAddUser = async () => {
+        try {
+            const data = await addUser({ firstName, lastName, username, password, email, phone });
             setUsers([...users, data]);
             setFirstName('');
             setLastName('');
@@ -37,64 +26,42 @@ const BackendTest = () => {
             setPassword('');
             setEmail('');
             setPhone('');
-        })
-        .catch(error => console.error('Error:', error));
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
-    const handleFetchUsers = () => {
-        fetch('http://192.168.0.117:5000/users')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
+    const handleFetchUsers = async () => {
+        try {
+            const data = await getUsers();
             setUsers(data);
             const userExists = data.some(user => user.firstName === firstName && user.lastName === lastName);
-            if (userExists) {
-                Alert.alert('User Exists', 'true');
-            } else {
-                Alert.alert('User Exists', 'false');
-            }
-        })
-        .catch(error => console.error('Error:', error));
+            Alert.alert('User Exists', userExists ? 'true' : 'false');
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
-    const handleAddRestroom = () => {
-        fetch('http://192.168.0.117:5000/restrooms', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name, latitude: parseFloat(latitude), longitude: parseFloat(longitude), rating: parseFloat(rating) }),
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
+    const handleAddRestroom = async () => {
+        try {
+            const data = await addRestroom({ name, latitude: parseFloat(latitude), longitude: parseFloat(longitude), rating: parseFloat(rating) });
             setRestrooms([...restrooms, data]);
             setName('');
             setLatitude('');
             setLongitude('');
             setRating('');
-        })
-        .catch(error => console.error('Error:', error));
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
-    const handleFetchRestrooms = () => {
-        fetch('http://192.168.0.117:5000/restrooms')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => setRestrooms(data))
-        .catch(error => console.error('Error:', error));
+    const handleFetchRestrooms = async () => {
+        try {
+            const data = await getRestrooms();
+            setRestrooms(data);
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     return (
@@ -135,6 +102,7 @@ const BackendTest = () => {
                 onChangeText={setEmail}
                 autoCapitalize="none"
             />
+            
             <TextInput
                 style={styles.input}
                 placeholder="Phone"

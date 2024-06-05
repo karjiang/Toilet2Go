@@ -14,50 +14,12 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-const userSchema = new mongoose.Schema({
-    firstName: String,
-    lastName: String,
-    username: String,
-    password: String,
-    email: String,
-    phone: String
-});
+// Routes
+const userRoutes = require('./routes/users');
+const restroomRoutes = require('./routes/restrooms');
 
-const restroomSchema = new mongoose.Schema({
-    name: String,
-    latitude: String,
-    longitude: String,
-    rating: String
-});
-
-const User = mongoose.model('User', userSchema);
-const Restroom = mongoose.model('Restroom', restroomSchema);
-
-app.post('/users', (req, res) => {
-    const newUser = new User(req.body);
-    newUser.save()
-        .then(user => res.json(user))
-        .catch(err => res.status(400).json({ error: err.message }));
-});
-
-app.get('/users', (req, res) => {
-    User.find()
-        .then(users => res.json(users))
-        .catch(err => res.status(400).json({ error: err.message }));
-});
-
-app.post('/restrooms', (req, res) => {
-    const newRestroom = new Restroom(req.body);
-    newRestroom.save()
-        .then(restroom => res.json(restroom))
-        .catch(err => res.status(400).json({ error: err.message }));
-});
-
-app.get('/restrooms', (req, res) => {
-    Restroom.find()
-        .then(restrooms => res.json(restrooms))
-        .catch(err => res.status(400).json({ error: err.message }));
-});
+app.use('/users', userRoutes);
+app.use('/restrooms', restroomRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ error: 'Not Found' });
