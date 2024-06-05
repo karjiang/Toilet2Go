@@ -3,8 +3,10 @@ import { View, StyleSheet } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
 import { MAPBOX_ACCESS_TOKEN } from '@env';
 
-// Set the Mapbox access token
+// Set the Mapbox access token]
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
+
+console.log('Mapbox Access Token:', MAPBOX_ACCESS_TOKEN); // Add this line to debug
 
 const MainPage = () => {
   return (

@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { loginUser } from './api';
 
 const Login = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
-    const handlePress = () => {
-        navigation.navigate('Login');
-    };
-
-    const handleLogin = () => {
-        // You can add your login logic here
-        Alert.alert('Login', `Username: ${username}, Password: ${password}`);
-        navigation.navigate('MainPage');
+    const handleLogin = async () => {
+        setErrorMessage(''); // Clear previous error messages
+        try {
+            const response = await loginUser(username, password);
+            if (response.success) {
+                navigation.navigate('MainPage');
+            } else {
+                setErrorMessage('Invalid username or password');
+            }
+        } catch (error) {
+            setErrorMessage('An error occurred. Please try again.');
+        }
     };
 
     return (
@@ -35,6 +41,7 @@ const Login = ({ navigation }) => {
                 autoCapitalize="none"
             />
             <Button title="Login" onPress={handleLogin} />
+            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
             <View style={styles.signupContainer}>
                 <Text style={styles.signupText}>Don't have an Account? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
@@ -68,6 +75,12 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 4,
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 16,
+        marginTop: 5,
+        marginBottom: 5,
     },
     signupContainer: {
         flexDirection: 'row',

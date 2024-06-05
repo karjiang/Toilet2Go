@@ -1,62 +1,180 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { registerUser } from './api';
 
 const SignUp = ({ navigation }) => {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
 
-    const handleSignUp = () => {
-        // Add your sign-up logic here
-        navigation.navigate('MainPage');
-        alert(`Username: ${username}, Password: ${password}, Confirm Password: ${confirmPassword}, Email: ${email}, Phone: ${phone}`);
+    const [firstNameError, setFirstNameError] = useState('');
+    const [lastNameError, setLastNameError] = useState('');
+    const [usernameError, setUsernameError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [generalError, setGeneralError] = useState('');
+
+    const handleSignUp = async () => {
+        let hasError = false;
+
+        // Clear previous error messages
+        setFirstNameError('');
+        setLastNameError('');
+        setUsernameError('');
+        setPasswordError('');
+        setConfirmPasswordError('');
+        setEmailError('');
+        setGeneralError('');
+
+        // Validate fields
+        const nameRegex = /^[A-Za-z]+$/;
+
+        if (!firstName) {
+            setFirstNameError('First Name is required');
+            hasError = true;
+        } else if (!nameRegex.test(firstName)) {
+            setFirstNameError('First Name must contain only letters');
+            hasError = true;
+        }
+
+        if (!lastName) {
+            setLastNameError('Last Name is required');
+            hasError = true;
+        } else if (!nameRegex.test(lastName)) {
+            setLastNameError('Last Name must contain only letters');
+            hasError = true;
+        }
+
+        if (!username) {
+            setUsernameError('Username is required');
+            hasError = true;
+        }
+
+        if (!password) {
+            setPasswordError('Password is required');
+            hasError = true;
+        }
+
+        if (!confirmPassword) {
+            setConfirmPasswordError('Confirm Password is required');
+            hasError = true;
+        }
+
+        if (password && confirmPassword && password !== confirmPassword) {
+            setConfirmPasswordError('Passwords do not match');
+            hasError = true;
+        }
+
+        if (!email) {
+            setEmailError('Email is required');
+            hasError = true;
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                setEmailError('Invalid email address');
+                hasError = true;
+            }
+        }
+
+        if (hasError) {
+            return;
+        }
+
+        // If all checks pass, proceed with sign-up logic
+        try {
+            const user = { firstName, lastName, username, password, email };
+            const response = await registerUser(user);
+            if (response.success) {
+                Alert.alert('Success', 'Account created successfully');
+                navigation.navigate('MainPage');
+            } else {
+                setGeneralError('Account already exists');
+            }
+        } catch (error) {
+            setGeneralError('An error occurred. Please try again.');
+        }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Sign Up</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Username"
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-                autoCapitalize="none"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={confirmPassword}
-                onChangeText={setEmail}
-                secureTextEntry
-                autoCapitalize="none"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Phone Number"
-                value={confirmPassword}
-                onChangeText={setPhone}
-                secureTextEntry
-                autoCapitalize="none"
-            />
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>First Name <Text style={styles.required}>*</Text></Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="First Name"
+                    value={firstName}
+                    onChangeText={setFirstName}
+                    autoCapitalize="none"
+                />
+                {firstNameError ? <Text style={styles.errorText}>{firstNameError}</Text> : null}
+            </View>
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>Last Name <Text style={styles.required}>*</Text></Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Last Name"
+                    value={lastName}
+                    onChangeText={setLastName}
+                    autoCapitalize="none"
+                />
+                {lastNameError ? <Text style={styles.errorText}>{lastNameError}</Text> : null}
+            </View>
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>Username <Text style={styles.required}>*</Text></Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Username"
+                    value={username}
+                    onChangeText={setUsername}
+                    autoCapitalize="none"
+                />
+                {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
+            </View>
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email <Text style={styles.required}>*</Text></Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                />
+                {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+            </View>
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>Password <Text style={styles.required}>*</Text></Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    textContentType="none"
+                />
+                {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+            </View>
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>Confirm Password <Text style={styles.required}>*</Text></Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    textContentType="none"
+                />
+                {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
+            </View>
             <Button title="Sign Up" onPress={handleSignUp} />
+            {generalError ? <Text style={styles.errorText}>{generalError}</Text> : null}
             <View style={styles.loginContainer}>
                 <Text style={styles.loginText}>Already have an Account? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -79,13 +197,28 @@ const styles = StyleSheet.create({
         fontSize: 24,
         marginBottom: 16,
     },
+    inputContainer: {
+        width: '100%',
+        marginBottom: 12,
+    },
+    label: {
+        fontSize: 16,
+        marginBottom: 4,
+    },
+    required: {
+        color: 'red',
+    },
     input: {
         width: '100%',
         padding: 8,
-        marginVertical: 8,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 4,
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 12,
+        marginTop: 4,
     },
     loginContainer: {
         flexDirection: 'row',
