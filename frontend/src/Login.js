@@ -14,7 +14,7 @@ const Login = ({ navigation }) => {
             if (response.success) {
                 navigation.navigate('MainPage');
             } else {
-                setErrorMessage('Invalid username or password');
+                setErrorMessage(response.message || 'Invalid username or password');
             }
         } catch (error) {
             setErrorMessage('An error occurred. Please try again.');

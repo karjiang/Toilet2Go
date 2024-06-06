@@ -38,10 +38,10 @@ router.post('/login', (req, res) => {
             if (user) {
                 res.json({ success: true, user });
             } else {
-                res.status(401).json({ success: false, message: 'Invalid username or password' });
+                res.json({ success: false, message: 'Invalid username or password' });
             }
         })
-        .catch(err => res.status(500).json({ error: err.message }));
+        .catch(err => res.json({ success: false, error: err.message }));
 });
 
 module.exports = router;

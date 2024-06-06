@@ -30,7 +30,7 @@ const MainPage = () => {
 
   return (
     <View style={styles.container}>
-      <MapboxGL.MapView style={styles.map}>
+      <MapboxGL.MapView style={styles.map} zoomEnabled={true}>
         <MapboxGL.Camera
           defaultSettings={{
             centerCoordinate: [-118.2842911, 34.0213524], // Coordinates for Los Angeles
@@ -68,7 +68,8 @@ const styles = StyleSheet.create({
   zoomButton: {
     backgroundColor: 'white',
     borderRadius: 5,
-    padding: 10,
+    width: 45, // Set the width to create a square
+    height: 45, // Set the height to match the width
     marginVertical: 5,
     alignItems: 'center',
     justifyContent: 'center',
