@@ -63,3 +63,13 @@ export const addRestroom = async (restroom) => {
         throw error;
     }
 };
+
+
+export const fetchRestrooms = async () => {
+    try {
+      const response = await axios.get('${API_BASE_URL}/restrooms');
+      setRestrooms(response.data);
+    } catch (error) {
+      console.error('Error fetching restrooms:', error);
+    }
+  };
