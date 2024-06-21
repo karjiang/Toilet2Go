@@ -14,7 +14,7 @@ const Login = ({ navigation }) => {
         try {
             const response = await loginUser(username, password);
             if (response.success) {
-                setUser({ username, password }); // Set the user context with both username and password
+                setUser(response.user); // Set the user context with all user information
                 navigation.navigate('MainPage');
             } else {
                 setErrorMessage(response.message || 'Invalid username or password');

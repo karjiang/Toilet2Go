@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { registerUser } from './api';
+import { UserContext } from './UserContext';
 
 const SignUp = ({ navigation }) => {
     const [firstName, setFirstName] = useState('');
@@ -17,6 +18,8 @@ const SignUp = ({ navigation }) => {
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [generalError, setGeneralError] = useState('');
+
+    const { setUser } = useContext(UserContext);
 
     const handleSignUp = async () => {
         let hasError = false;
@@ -89,6 +92,7 @@ const SignUp = ({ navigation }) => {
             const user = { firstName, lastName, username, password, email };
             const response = await registerUser(user);
             if (response.success) {
+                setUser(response.user);
                 Alert.alert('Success', 'Account created successfully');
                 navigation.navigate('MainPage');
             } else {

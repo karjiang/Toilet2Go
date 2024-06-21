@@ -63,6 +63,14 @@ const MainPage = () => {
     navigation.navigate('UserProfile');
   };
 
+  const handleNavigateToFavorites = () => {
+    navigation.navigate('Favorites');
+  };
+
+  const handleNavigateToReviews = () => {
+    navigation.navigate('Reviews');
+  };
+
   const closeModal = () => {
     setSelectedRestroom(null);
   };
@@ -153,6 +161,12 @@ const MainPage = () => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={handleNavigateToUserProfile}>
           <Text style={styles.menuText}>Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={handleNavigateToFavorites}>
+          <Text style={styles.menuText}>Favorites</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={handleNavigateToReviews}>
+          <Text style={styles.menuText}>Reviews</Text>
         </TouchableOpacity>
       </Animated.View>
 
