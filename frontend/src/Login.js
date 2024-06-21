@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { loginUser } from './api';
+import { UserContext } from './UserContext';
 
 const Login = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const { setUser } = useContext(UserContext);
 
     const handleLogin = async () => {
         setErrorMessage(''); // Clear previous error messages
         try {
             const response = await loginUser(username, password);
             if (response.success) {
+                setUser({ username, password }); // Set the user context with both username and password
                 navigation.navigate('MainPage');
             } else {
                 setErrorMessage(response.message || 'Invalid username or password');

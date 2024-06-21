@@ -64,12 +64,12 @@ export const addRestroom = async (restroom) => {
     }
 };
 
-
-export const fetchRestrooms = async () => {
+export const addReview = async (id, review) => {
     try {
-      const response = await axios.get('${API_BASE_URL}/restrooms');
-      setRestrooms(response.data);
+        const response = await axios.post(`${API_BASE_URL}/restrooms/${id}/reviews`, review);
+        return response.data;
     } catch (error) {
-      console.error('Error fetching restrooms:', error);
+        console.error('Error adding review', error);
+        throw error;
     }
-  };
+};

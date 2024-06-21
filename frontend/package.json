@@ -15,6 +15,8 @@
     "@react-navigation/stack": "^6.3.29",
     "@rnmapbox/maps": "^10.1.24",
     "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "mongoose-auto-increment": "^5.0.1",
     "react": "18.2.0",
     "react-native": "0.74.1",
     "react-native-console-time-polyfill": "^1.2.3",
