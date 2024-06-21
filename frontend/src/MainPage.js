@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, TouchableWithoutFeedback, Animated, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, TouchableWithoutFeedback, Animated, Dimensions, TextInput } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
-import { MAPBOX_ACCESS_TOKEN } from '@env';
+import { MAPBOX_ACCESS_TOKEN } from '@env'; // Assuming you have the Geocoding API key in your env
+import axios from 'axios';
 import { getRestrooms } from './api';
 import 'react-native-console-time-polyfill';
 import { useNavigation } from '@react-navigation/native';
@@ -19,6 +20,7 @@ const MainPage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const screenWidth = Dimensions.get('window').width;
   const slideAnim = useRef(new Animated.Value(-screenWidth / 3)).current; // Initial value for sliding menu
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchRestrooms();
@@ -84,8 +86,53 @@ const MainPage = () => {
     }).start();
   };
 
+  const closeMenu = () => {
+    setMenuOpen(false);
+    Animated.timing(slideAnim, {
+      toValue: -screenWidth / 3,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleSearchSubmit = async () => {
+    try {
+      const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_ACCESS_TOKEN}`);
+      if (response.data.features.length > 0) {
+        const [longitude, latitude] = response.data.features[0].center;
+        cameraRef.current.setCamera({
+          centerCoordinate: [longitude, latitude],
+          zoomLevel: 14,
+          animationDuration: 0, // 1 second animation duration
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching coordinates:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
+      <View style={styles.topBar}>
+        <TouchableOpacity style={styles.circleButton} onPress={toggleMenu}>
+          <Text style={styles.circleButtonText}>≡</Text>
+        </TouchableOpacity>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearchSubmit}
+          autoCapitalize="none"
+        />
+      </View>
+
+      {menuOpen && (
+        <TouchableWithoutFeedback onPress={closeMenu}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+      )}
+
       <TouchableWithoutFeedback onPress={closeModal}>
         <View style={styles.mapContainer}>
           <MapboxGL.MapView
@@ -117,12 +164,10 @@ const MainPage = () => {
           </MapboxGL.MapView>
         </View>
       </TouchableWithoutFeedback>
+
       <View style={styles.zoomControls}>
         <TouchableOpacity style={styles.navigateButton} onPress={handleNavigateToBackendTest}>
           <Text style={styles.navigateText}>Backend</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navigateButton} onPress={handleNavigateToUserProfile}>
-          <Text style={styles.navigateText}>Profile</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
           <Text style={styles.zoomText}>+</Text>
@@ -156,9 +201,6 @@ const MainPage = () => {
       )}
 
       <Animated.View style={[styles.sideMenu, { width: screenWidth / 3, transform: [{ translateX: slideAnim }] }]}>
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Search')}>
-          <Text style={styles.menuText}>Search</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={handleNavigateToUserProfile}>
           <Text style={styles.menuText}>Profile</Text>
         </TouchableOpacity>
@@ -169,10 +211,6 @@ const MainPage = () => {
           <Text style={styles.menuText}>Reviews</Text>
         </TouchableOpacity>
       </Animated.View>
-
-      <TouchableOpacity style={styles.circleButton} onPress={toggleMenu}>
-        <Text style={styles.circleButtonText}>≡</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -180,6 +218,13 @@ const MainPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: 'white',
+    elevation: 10,
   },
   mapContainer: {
     flex: 1,
@@ -277,6 +322,15 @@ const styles = StyleSheet.create({
     elevation: 20,
     zIndex: 1000,
   },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+    zIndex: 999,
+  },
   menuItem: {
     marginVertical: 10,
   },
@@ -285,21 +339,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   circleButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 30, // 2/3 of original 45
+    height: 30, // 2/3 of original 45
+    borderRadius: 15, // 2/3 of original 22.5
     backgroundColor: 'blue',
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
+    marginRight: 10,
   },
   circleButtonText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 16, // 2/3 of original 24
     fontWeight: 'bold',
+  },
+  searchBar: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
   },
 });
 
