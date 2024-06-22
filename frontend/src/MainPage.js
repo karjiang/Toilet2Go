@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Modal, TextInput, Animated, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Modal, TextInput, Animated, TouchableWithoutFeedback, Image, ScrollView } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
 import { MAPBOX_ACCESS_TOKEN } from '@env';
 import axios from 'axios';
@@ -18,7 +18,7 @@ const MainPage = () => {
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const slideAnim = useRef(new Animated.Value(-1)).current; // Initial value for sliding menu
+  const slideAnim = useRef(new Animated.Value(-100)).current; // Initial value for sliding menu
   const [searchQuery, setSearchQuery] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -75,14 +75,14 @@ const MainPage = () => {
   };
 
   const closeModal = () => {
-    setSelectedRestroom(null);
     setModalVisible(false);
+    setSelectedRestroom(null);
   };
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
     Animated.timing(slideAnim, {
-      toValue: menuOpen ? -1 : 0,
+      toValue: menuOpen ? -100 : 0,
       duration: 300,
       useNativeDriver: true,
     }).start();
@@ -91,7 +91,7 @@ const MainPage = () => {
   const closeMenu = () => {
     setMenuOpen(false);
     Animated.timing(slideAnim, {
-      toValue: -1,
+      toValue: -100,
       duration: 300,
       useNativeDriver: true,
     }).start();
@@ -193,21 +193,21 @@ const MainPage = () => {
             <View style={styles.modalOverlay} />
           </TouchableWithoutFeedback>
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{selectedRestroom.name}</Text>
-              <Text>ID: {selectedRestroom.id}</Text>
-              <Text>Latitude: {selectedRestroom.latitude}</Text>
-              <Text>Longitude: {selectedRestroom.longitude}</Text>
-              <Text>Rating: {selectedRestroom.rating.toFixed(2)}</Text>
-              <Text>Reviews:</Text>
+            <ScrollView contentContainerStyle={styles.modalContent}>
+              <Text style={styles.modalTitle}>{selectedRestroom.name} ({selectedRestroom.rating.toFixed(1)}*)</Text>
+              <Image
+                source={{ uri: 'https://via.placeholder.com/150' }}
+                style={styles.tempImage}
+              />
+              <Text style={styles.modalSectionTitle}>Reviews:</Text>
+              <View style={styles.separator} />
               {selectedRestroom.reviews.map((review, index) => (
                 <View key={index} style={styles.review}>
-                  <Text>User: {review.user}</Text>
-                  <Text>Rating: {review.rating}</Text>
-                  <Text>Comment: {review.comment}</Text>
+                  <Text style={styles.reviewUser}>{review.user}:</Text>
+                  <Text style={styles.reviewComment}>{review.comment}</Text>
                 </View>
               ))}
-            </View>
+            </ScrollView>
           </View>
         </Modal>
       )}
@@ -310,9 +310,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   modalContent: {
-    flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20, // Adjusted top padding
+    paddingTop: 10, // Adjusted top padding
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     justifyContent: 'flex-start', // Align items to the top
@@ -322,8 +321,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  modalSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  tempImage: {
+    width: '100%',
+    height: 100,
+    marginVertical: 10,
+    backgroundColor: '#ccc',
+  },
+  separator: {
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
+    marginVertical: 10,
+  },
   review: {
     marginBottom: 10,
+  },
+  reviewUser: {
+    fontWeight: 'bold',
+  },
+  reviewComment: {
+    marginLeft: 10,
   },
   sideMenu: {
     position: 'absolute',
