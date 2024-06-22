@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, TouchableWithoutFeedback, Animated, Dimensions, TextInput } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Modal, TextInput, Animated, TouchableWithoutFeedback } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
-import { MAPBOX_ACCESS_TOKEN } from '@env'; // Assuming you have the Geocoding API key in your env
+import { MAPBOX_ACCESS_TOKEN } from '@env';
 import axios from 'axios';
 import { getRestrooms } from './api';
 import 'react-native-console-time-polyfill';
@@ -18,9 +18,9 @@ const MainPage = () => {
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const screenWidth = Dimensions.get('window').width;
-  const slideAnim = useRef(new Animated.Value(-screenWidth / 3)).current; // Initial value for sliding menu
+  const slideAnim = useRef(new Animated.Value(-1)).current; // Initial value for sliding menu
   const [searchQuery, setSearchQuery] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     fetchRestrooms();
@@ -55,6 +55,7 @@ const MainPage = () => {
 
   const handlePinPress = (restroom) => {
     setSelectedRestroom(restroom);
+    setModalVisible(true);
   };
 
   const handleNavigateToBackendTest = () => {
@@ -75,12 +76,13 @@ const MainPage = () => {
 
   const closeModal = () => {
     setSelectedRestroom(null);
+    setModalVisible(false);
   };
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
     Animated.timing(slideAnim, {
-      toValue: menuOpen ? -screenWidth / 3 : 0,
+      toValue: menuOpen ? -1 : 0,
       duration: 300,
       useNativeDriver: true,
     }).start();
@@ -89,7 +91,7 @@ const MainPage = () => {
   const closeMenu = () => {
     setMenuOpen(false);
     Animated.timing(slideAnim, {
-      toValue: -screenWidth / 3,
+      toValue: -1,
       duration: 300,
       useNativeDriver: true,
     }).start();
@@ -103,7 +105,7 @@ const MainPage = () => {
         cameraRef.current.setCamera({
           centerCoordinate: [longitude, latitude],
           zoomLevel: 14,
-          animationDuration: 0, // 1 second animation duration
+          animationDuration: 1000, // 1 second animation duration
         });
       }
     } catch (error) {
@@ -169,6 +171,9 @@ const MainPage = () => {
         <TouchableOpacity style={styles.navigateButton} onPress={handleNavigateToBackendTest}>
           <Text style={styles.navigateText}>Backend</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.navigateButton} onPress={handleNavigateToUserProfile}>
+          <Text style={styles.navigateText}>Profile</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
           <Text style={styles.zoomText}>+</Text>
         </TouchableOpacity>
@@ -178,29 +183,36 @@ const MainPage = () => {
       </View>
 
       {selectedRestroom && (
-        <View style={styles.modalContainer}>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={closeModal}
+        >
           <TouchableWithoutFeedback onPress={closeModal}>
             <View style={styles.modalOverlay} />
           </TouchableWithoutFeedback>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{selectedRestroom.name}</Text>
-            <Text>ID: {selectedRestroom.id}</Text>
-            <Text>Latitude: {selectedRestroom.latitude}</Text>
-            <Text>Longitude: {selectedRestroom.longitude}</Text>
-            <Text>Rating: {selectedRestroom.rating.toFixed(2)}</Text>
-            <Text>Reviews:</Text>
-            {selectedRestroom.reviews.map((review, index) => (
-              <View key={index} style={styles.review}>
-                <Text>User: {review.user}</Text>
-                <Text>Rating: {review.rating}</Text>
-                <Text>Comment: {review.comment}</Text>
-              </View>
-            ))}
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{selectedRestroom.name}</Text>
+              <Text>ID: {selectedRestroom.id}</Text>
+              <Text>Latitude: {selectedRestroom.latitude}</Text>
+              <Text>Longitude: {selectedRestroom.longitude}</Text>
+              <Text>Rating: {selectedRestroom.rating.toFixed(2)}</Text>
+              <Text>Reviews:</Text>
+              {selectedRestroom.reviews.map((review, index) => (
+                <View key={index} style={styles.review}>
+                  <Text>User: {review.user}</Text>
+                  <Text>Rating: {review.rating}</Text>
+                  <Text>Comment: {review.comment}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
+        </Modal>
       )}
 
-      <Animated.View style={[styles.sideMenu, { width: screenWidth / 3, transform: [{ translateX: slideAnim }] }]}>
+      <Animated.View style={[styles.sideMenu, { transform: [{ translateX: slideAnim.interpolate({ inputRange: [-1, 0], outputRange: [-100, 0] }) }] }]}>
         <TouchableOpacity style={styles.menuItem} onPress={handleNavigateToUserProfile}>
           <Text style={styles.menuText}>Profile</Text>
         </TouchableOpacity>
@@ -300,9 +312,10 @@ const styles = StyleSheet.create({
   modalContent: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 20, // Adjusted top padding
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    justifyContent: 'flex-start', // Align items to the top
   },
   modalTitle: {
     fontSize: 24,
@@ -317,6 +330,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     height: '100%',
+    width: '33%', // 1/3 of the width
     backgroundColor: 'white',
     padding: 20,
     elevation: 20,
