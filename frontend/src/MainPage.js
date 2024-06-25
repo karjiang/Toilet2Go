@@ -1,17 +1,19 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, Modal, TextInput, Animated, TouchableWithoutFeedback, Image, ScrollView } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
 import { MAPBOX_ACCESS_TOKEN } from '@env';
 import axios from 'axios';
-import { getRestrooms } from './api';
+import { getRestrooms, addUserFavorite } from './api';
 import 'react-native-console-time-polyfill';
 import { useNavigation } from '@react-navigation/native';
+import { UserContext } from './UserContext'; // Import UserContext
 
 // Set the Mapbox access token
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const MainPage = () => {
   const navigation = useNavigation();
+  const { user, setUser } = useContext(UserContext); // Use UserContext
   const mapViewRef = useRef(null);
   const cameraRef = useRef(null);
   const [zoomLevel, setZoomLevel] = useState(14);
@@ -62,9 +64,6 @@ const MainPage = () => {
     navigation.navigate('BackendTest');
   };
 
-  const handleNavigateToReviewTest = () => {
-    navigation.navigate('ReviewTest');
-  };
 
   const handleNavigateToUserProfile = () => {
     navigation.navigate('UserProfile');
@@ -114,6 +113,16 @@ const MainPage = () => {
       }
     } catch (error) {
       console.error('Error fetching coordinates:', error);
+    }
+  };
+
+  const handleAddFavorite = async () => {
+    try {
+      const updatedUser = await addUserFavorite(user.id, selectedRestroom.id);
+      setUser(updatedUser); // Update the user context with the new favorite restrooms
+      alert('Added to Favorites');
+    } catch (error) {
+      console.error('Error adding to favorites:', error);
     }
   };
 
@@ -172,9 +181,6 @@ const MainPage = () => {
       </TouchableWithoutFeedback>
 
       <View style={styles.zoomControls}>
-        <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToReviewTest}>
-          <Text style={styles.navigateText}>Review</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToBackendTest}>
           <Text style={styles.navigateText}>Backend</Text>
         </TouchableOpacity>
@@ -216,7 +222,7 @@ const MainPage = () => {
               ))}
             </ScrollView>
             <View style={styles.favoriteButtonContainer}>
-              <TouchableOpacity style={styles.favoriteButton} onPress={() => alert('Added to Favorites')}>
+              <TouchableOpacity style={styles.favoriteButton} onPress={handleAddFavorite}>
                 <Text style={styles.favoriteButtonText}>Favorite</Text>
               </TouchableOpacity>
             </View>

@@ -25,13 +25,15 @@ router.post('/:id/reviews', async (req, res) => {
     const { id } = req.params;
     const { user, rating, comment } = req.body;
     try {
+        // Add review to restroom
         const restroom = await Restroom.findOne({ id: parseInt(id) });
         if (!restroom) {
             return res.status(404).json({ success: false, message: 'Restroom not found' });
         }
         restroom.reviews.push({ user, rating, comment });
-        restroom.calculateAverageRating();  // Calculate average rating
+        restroom.calculateAverageRating();
         await restroom.save();
+
         res.json({ success: true, review: { user, rating, comment } });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });

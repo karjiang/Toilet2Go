@@ -1,16 +1,16 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, FlatList } from 'react-native';
-import { getRestrooms, addRestroom, addReview } from './api';
+import { getRestrooms, addRestroom, addReview, addUserReview } from './api'; // Add addUserReview to imports
 import { UserContext } from './UserContext';
 
 const BackendTest = () => {
-    const { user } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext); // Include setUser to update user context
     const [name, setName] = useState('');
     const [latitude, setLatitude] = useState('');
     const [longitude, setLongitude] = useState('');
     const [restrooms, setRestrooms] = useState([]);
 
-    const [reviewRestaurantId, setReviewRestaurantId] = useState('');
+    const [reviewRestroomId, setReviewRestroomId] = useState('');
     const [reviewRating, setReviewRating] = useState('');
     const [reviewComment, setReviewComment] = useState('');
 
@@ -41,14 +41,27 @@ const BackendTest = () => {
 
     const handleAddReview = async () => {
         try {
-            const data = await addReview(reviewRestaurantId, { user: user.username, rating: parseFloat(reviewRating), comment: reviewComment });
+            // Add review to the restroom
+            await addReview(reviewRestroomId, { user: user.username, rating: parseFloat(reviewRating), comment: reviewComment });
+
+            // Add review to the user
+            await addUserReview(user.id, { restroomId: parseInt(reviewRestroomId), rating: parseFloat(reviewRating), comment: reviewComment });
+
+            // Update the user context with the new review
+            setUser(prevUser => ({
+                ...prevUser,
+                reviews: [...prevUser.reviews, { restroomId: parseInt(reviewRestroomId), rating: parseFloat(reviewRating), comment: reviewComment }]
+            }));
+
+            // Update the local state to reflect the new review and rating
             setRestrooms(restrooms.map(restroom => {
-                if (restroom.id === parseInt(reviewRestaurantId)) {
-                    return { ...restroom, reviews: [...restroom.reviews, data], rating: (restroom.reviews.reduce((sum, review) => sum + review.rating, 0) + parseFloat(reviewRating)) / (restroom.reviews.length + 1) };
+                if (restroom.id === parseInt(reviewRestroomId)) {
+                    return { ...restroom, reviews: [...restroom.reviews, { user: user.username, rating: parseFloat(reviewRating), comment: reviewComment }], rating: (restroom.reviews.reduce((sum, review) => sum + review.rating, 0) + parseFloat(reviewRating)) / (restroom.reviews.length + 1) };
                 }
                 return restroom;
             }));
-            setReviewRestaurantId('');
+
+            setReviewRestroomId('');
             setReviewRating('');
             setReviewComment('');
         } catch (error) {
@@ -58,10 +71,10 @@ const BackendTest = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.sectionTitle}>Add Restaurant</Text>
+            <Text style={styles.sectionTitle}>Add Restroom</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Restaurant Name"
+                placeholder="Restroom Name"
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="none"
@@ -82,14 +95,14 @@ const BackendTest = () => {
                 autoCapitalize="none"
                 keyboardType="numeric"
             />
-            <Button title="Add Restaurant" onPress={handleAddRestroom} />
+            <Button title="Add Restroom" onPress={handleAddRestroom} />
 
             <Text style={styles.sectionTitle}>Add Review</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Restaurant ID"
-                value={reviewRestaurantId}
-                onChangeText={setReviewRestaurantId}
+                placeholder="Restroom ID"
+                value={reviewRestroomId}
+                onChangeText={setReviewRestroomId}
                 autoCapitalize="none"
                 keyboardType="numeric"
             />
@@ -110,31 +123,7 @@ const BackendTest = () => {
             />
             <Button title="Add Review" onPress={handleAddReview} />
 
-            <FlatList
-                data={restrooms}
-                keyExtractor={item => item.id.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.restroom}>
-                        <Text>ID: {item.id}</Text>
-                        <Text>Name: {item.name}</Text>
-                        <Text>Latitude: {item.latitude}</Text>
-                        <Text>Longitude: {item.longitude}</Text>
-                        <Text>Rating: {item.rating}</Text>
-                        {item.reviews.length > 0 && (
-                            <View style={styles.reviews}>
-                                <Text>Reviews:</Text>
-                                {item.reviews.map((review, index) => (
-                                    <View key={index} style={styles.review}>
-                                        <Text>User: {review.user}</Text>
-                                        <Text>Rating: {review.rating}</Text>
-                                        <Text>Comment: {review.comment}</Text>
-                                    </View>
-                                ))}
-                            </View>
-                        )}
-                    </View>
-                )}
-            />
+            
         </View>
     );
 };
