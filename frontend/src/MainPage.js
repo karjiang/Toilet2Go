@@ -62,6 +62,10 @@ const MainPage = () => {
     navigation.navigate('BackendTest');
   };
 
+  const handleNavigateToReviewTest = () => {
+    navigation.navigate('ReviewTest');
+  };
+
   const handleNavigateToUserProfile = () => {
     navigation.navigate('UserProfile');
   };
@@ -168,10 +172,13 @@ const MainPage = () => {
       </TouchableWithoutFeedback>
 
       <View style={styles.zoomControls}>
-        <TouchableOpacity style={styles.navigateButton} onPress={handleNavigateToBackendTest}>
+        <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToReviewTest}>
+          <Text style={styles.navigateText}>Review</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToBackendTest}>
           <Text style={styles.navigateText}>Backend</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navigateButton} onPress={handleNavigateToUserProfile}>
+        <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToUserProfile}>
           <Text style={styles.navigateText}>Profile</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
@@ -208,6 +215,11 @@ const MainPage = () => {
                 </View>
               ))}
             </ScrollView>
+            <View style={styles.favoriteButtonContainer}>
+              <TouchableOpacity style={styles.favoriteButton} onPress={() => alert('Added to Favorites')}>
+                <Text style={styles.favoriteButtonText}>Favorite</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Modal>
       )}
@@ -253,7 +265,7 @@ const styles = StyleSheet.create({
   navigateButton: {
     backgroundColor: 'white',
     borderRadius: 5,
-    width: 45, // Set the width to create a square
+    width: 60, // Increased width to fit new button text
     height: 45, // Set the height to match the width
     marginVertical: 5,
     alignItems: 'center',
@@ -261,7 +273,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   navigateText: {
-    fontSize: 8,
+    fontSize: 10, // Adjusted font size to fit new button text
     fontWeight: 'bold',
   },
   zoomButton: {
@@ -395,6 +407,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+  },
+  favoriteButtonContainer: {
+    padding: 10,
+    borderTopWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: '#fff',
+  },
+  favoriteButton: {
+    backgroundColor: 'blue',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  favoriteButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

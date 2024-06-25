@@ -28,8 +28,12 @@ export const loginUser = async (username, password) => {
         const response = await axios.post(`${API_BASE_URL}/users/login`, { username, password });
         return response.data;
     } catch (error) {
-        console.error('Error logging in', error);
-        throw error;
+        if (error.response && error.response.data && error.response.data.message) {
+            return { success: false, message: error.response.data.message };
+        } else {
+            console.error('Error logging in', error);
+            return { success: false, message: 'An error occurred. Please try again.' };
+        }
     }
 };
 
@@ -38,7 +42,31 @@ export const registerUser = async (user) => {
         const response = await axios.post(`${API_BASE_URL}/users/register`, user);
         return response.data;
     } catch (error) {
-        console.error('Error registering user', error);
+        if (error.response && error.response.data && error.response.data.message) {
+            return { success: false, message: error.response.data.message };
+        } else {
+            console.error('Error registering user', error);
+            return { success: false, message: 'An error occurred. Please try again.' };
+        }
+    }
+};
+
+export const addUserReview = async (userId, review) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/users/${userId}/reviews`, review);
+        return response.data;
+    } catch (error) {
+        console.error('Error adding user review', error);
+        throw error;
+    }
+};
+
+export const addUserFavorite = async (userId, restroomId) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/users/${userId}/favorites`, { restroomId });
+        return response.data;
+    } catch (error) {
+        console.error('Error adding user favorite', error);
         throw error;
     }
 };

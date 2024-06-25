@@ -8,7 +8,6 @@ const BackendTest = () => {
     const [name, setName] = useState('');
     const [latitude, setLatitude] = useState('');
     const [longitude, setLongitude] = useState('');
-    const [rating, setRating] = useState('');
     const [restrooms, setRestrooms] = useState([]);
 
     const [reviewRestaurantId, setReviewRestaurantId] = useState('');
@@ -19,6 +18,15 @@ const BackendTest = () => {
         handleFetchRestrooms();
     }, []);
 
+    const handleFetchRestrooms = async () => {
+        try {
+            const data = await getRestrooms();
+            setRestrooms(data);
+        } catch (error) {
+            console.error('Error fetching restrooms:', error);
+        }
+    };
+
     const handleAddRestroom = async () => {
         try {
             const data = await addRestroom({ name, latitude, longitude, rating: 0, reviews: [] });
@@ -26,16 +34,6 @@ const BackendTest = () => {
             setName('');
             setLatitude('');
             setLongitude('');
-            setRating('');
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
-
-    const handleFetchRestrooms = async () => {
-        try {
-            const data = await getRestrooms();
-            setRestrooms(data);
         } catch (error) {
             console.error('Error:', error);
         }
@@ -44,7 +42,6 @@ const BackendTest = () => {
     const handleAddReview = async () => {
         try {
             const data = await addReview(reviewRestaurantId, { user: user.username, rating: parseFloat(reviewRating), comment: reviewComment });
-            // Update the local state to reflect the new review and rating
             setRestrooms(restrooms.map(restroom => {
                 if (restroom.id === parseInt(reviewRestaurantId)) {
                     return { ...restroom, reviews: [...restroom.reviews, data], rating: (restroom.reviews.reduce((sum, review) => sum + review.rating, 0) + parseFloat(reviewRating)) / (restroom.reviews.length + 1) };
@@ -86,9 +83,6 @@ const BackendTest = () => {
                 keyboardType="numeric"
             />
             <Button title="Add Restaurant" onPress={handleAddRestroom} />
-            <Button title="Fetch Restaurants" onPress={handleFetchRestrooms} />
-
-            
 
             <Text style={styles.sectionTitle}>Add Review</Text>
             <TextInput
@@ -115,6 +109,32 @@ const BackendTest = () => {
                 autoCapitalize="none"
             />
             <Button title="Add Review" onPress={handleAddReview} />
+
+            <FlatList
+                data={restrooms}
+                keyExtractor={item => item.id.toString()}
+                renderItem={({ item }) => (
+                    <View style={styles.restroom}>
+                        <Text>ID: {item.id}</Text>
+                        <Text>Name: {item.name}</Text>
+                        <Text>Latitude: {item.latitude}</Text>
+                        <Text>Longitude: {item.longitude}</Text>
+                        <Text>Rating: {item.rating}</Text>
+                        {item.reviews.length > 0 && (
+                            <View style={styles.reviews}>
+                                <Text>Reviews:</Text>
+                                {item.reviews.map((review, index) => (
+                                    <View key={index} style={styles.review}>
+                                        <Text>User: {review.user}</Text>
+                                        <Text>Rating: {review.rating}</Text>
+                                        <Text>Comment: {review.comment}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+                    </View>
+                )}
+            />
         </View>
     );
 };

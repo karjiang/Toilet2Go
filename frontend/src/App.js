@@ -6,6 +6,7 @@ import Login from './Login';
 import SignUp from './SignUp';
 import MainPage from './MainPage';
 import BackendTest from './backendTest';
+import ReviewTest from './ReviewTest';
 import UserProfile from './UserProfile';
 import { UserProvider } from './UserContext';
 
@@ -33,6 +34,7 @@ const App = () => {
                     <Stack.Screen name="SignUp" component={SignUp} />
                     <Stack.Screen name="MainPage" component={MainPage} />
                     <Stack.Screen name="BackendTest" component={BackendTest} />
+                    <Stack.Screen name="ReviewTest" component={ReviewTest} />
                     <Stack.Screen name="UserProfile" component={UserProfile} />
                 </Stack.Navigator>
             </NavigationContainer>

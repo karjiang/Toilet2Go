@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
 
+const reviewSchema = new mongoose.Schema({
+    restroomId: Number,
+    rating: Number,
+    comment: String
+});
+
 const userSchema = new mongoose.Schema({
+    id: {
+        type: Number,
+        unique: true,
+        required: true
+    },
     firstName: {
         type: String,
         required: true,
@@ -23,6 +34,8 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    reviews: [reviewSchema],
+    favoriteRestrooms: [Number], // List of restroom IDs
 });
 
 const User = mongoose.model('User', userSchema);
