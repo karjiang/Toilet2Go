@@ -71,6 +71,16 @@ export const addUserFavorite = async (userId, restroomId) => {
     }
 };
 
+export const removeUserFavorite = async (userId, restroomId) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/users/${userId}/favorites`, { data: { restroomId } });
+        return response.data;
+    } catch (error) {
+        console.error('Error removing user favorite', error);
+        throw error;
+    }
+};
+
 /************ RESTROOMS  ****************/ 
 export const getRestrooms = async () => {
     try {

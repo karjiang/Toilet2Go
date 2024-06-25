@@ -90,4 +90,21 @@ router.post('/:id/favorites', async (req, res) => {
     }
 });
 
+// Remove a favorite restroom from a user
+router.delete('/:id/favorites', async (req, res) => {
+    const { id } = req.params;
+    const { restroomId } = req.body; // Ensure restroomId is taken from req.body
+    try {
+        const user = await User.findOne({ id: parseInt(id) });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        user.favoriteRestrooms = user.favoriteRestrooms.filter(favId => favId !== restroomId);
+        await user.save();
+        res.json({ success: true, favoriteRestrooms: user.favoriteRestrooms });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 module.exports = router;

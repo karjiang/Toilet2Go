@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Text, Modal, TextInput, Animated, T
 import MapboxGL from '@rnmapbox/maps';
 import { MAPBOX_ACCESS_TOKEN } from '@env';
 import axios from 'axios';
-import { getRestrooms, addUserFavorite } from './api';
+import { getRestrooms, addUserFavorite, removeUserFavorite } from './api'; // Import removeUserFavorite
 import 'react-native-console-time-polyfill';
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from './UserContext'; // Import UserContext
@@ -64,7 +64,6 @@ const MainPage = () => {
     navigation.navigate('BackendTest');
   };
 
-
   const handleNavigateToUserProfile = () => {
     navigation.navigate('UserProfile');
   };
@@ -116,13 +115,18 @@ const MainPage = () => {
     }
   };
 
-  const handleAddFavorite = async () => {
+  const handleToggleFavorite = async () => {
     try {
-      const updatedUser = await addUserFavorite(user.id, selectedRestroom.id);
-      setUser(updatedUser); // Update the user context with the new favorite restrooms
-      alert('Added to Favorites');
+      let updatedUser;
+      const favoriteRestrooms = user.favoriteRestrooms || [];
+      if (favoriteRestrooms.includes(selectedRestroom.id)) {
+        updatedUser = await removeUserFavorite(user.id, selectedRestroom.id);
+      } else {
+        updatedUser = await addUserFavorite(user.id, selectedRestroom.id);
+      }
+      setUser(updatedUser); // Update the user context with the updated user
     } catch (error) {
-      console.error('Error adding to favorites:', error);
+      console.error('Error toggling favorite:', error);
     }
   };
 
@@ -222,8 +226,10 @@ const MainPage = () => {
               ))}
             </ScrollView>
             <View style={styles.favoriteButtonContainer}>
-              <TouchableOpacity style={styles.favoriteButton} onPress={handleAddFavorite}>
-                <Text style={styles.favoriteButtonText}>Favorite</Text>
+              <TouchableOpacity style={styles.favoriteButton} onPress={handleToggleFavorite}>
+                <Text style={styles.favoriteButtonText}>
+                  {user.favoriteRestrooms && user.favoriteRestrooms.includes(selectedRestroom.id) ? 'Unfavorite' : 'Favorite'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
