@@ -99,9 +99,9 @@ router.delete('/:id/favorites', async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
-        user.favoriteRestrooms = user.favoriteRestrooms.filter(favId => favId !== restroomId);
+        user.favoriteRestrooms = user.favoriteRestrooms.filter(id => id !== restroomId);
         await user.save();
-        res.json({ success: true, favoriteRestrooms: user.favoriteRestrooms });
+        res.json({ success: true, user });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

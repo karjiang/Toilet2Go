@@ -125,6 +125,12 @@ const MainPage = () => {
         updatedUser = await addUserFavorite(user.id, selectedRestroom.id);
       }
       setUser(updatedUser); // Update the user context with the updated user
+      
+      // Update the local state immediately
+      setSelectedRestroom(prevRestroom => ({
+        ...prevRestroom,
+        isFavorite: !favoriteRestrooms.includes(prevRestroom.id)
+      }));
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }
