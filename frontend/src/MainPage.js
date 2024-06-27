@@ -3,30 +3,35 @@ import { View, StyleSheet, TouchableOpacity, Text, Modal, TextInput, Animated, T
 import MapboxGL from '@rnmapbox/maps';
 import { MAPBOX_ACCESS_TOKEN } from '@env';
 import axios from 'axios';
-import { getRestrooms, addUserFavorite, removeUserFavorite } from './api'; // Import removeUserFavorite
+import { getRestrooms, addUserFavorite, removeUserFavorite } from './api';
 import 'react-native-console-time-polyfill';
 import { useNavigation } from '@react-navigation/native';
-import { UserContext } from './UserContext'; // Import UserContext
+import { UserContext } from './UserContext';
 
-// Set the Mapbox access token
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const MainPage = () => {
   const navigation = useNavigation();
-  const { user, setUser } = useContext(UserContext); // Use UserContext
+  const { user, setUser } = useContext(UserContext);
   const mapViewRef = useRef(null);
   const cameraRef = useRef(null);
   const [zoomLevel, setZoomLevel] = useState(14);
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const slideAnim = useRef(new Animated.Value(-100)).current; // Initial value for sliding menu
+  const slideAnim = useRef(new Animated.Value(-100)).current;
   const [searchQuery, setSearchQuery] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [localFavorites, setLocalFavorites] = useState(new Set(user.favoriteRestrooms || []));
 
   useEffect(() => {
     fetchRestrooms();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', updateUserFavorites);
+    return unsubscribe;
+  }, [navigation, localFavorites]);
 
   const fetchRestrooms = async () => {
     try {
@@ -107,7 +112,7 @@ const MainPage = () => {
         cameraRef.current.setCamera({
           centerCoordinate: [longitude, latitude],
           zoomLevel: 14,
-          animationDuration: 1000, // 1 second animation duration
+          animationDuration: 1000,
         });
       }
     } catch (error) {
@@ -115,24 +120,33 @@ const MainPage = () => {
     }
   };
 
-  const handleToggleFavorite = async () => {
+  const handleToggleFavorite = () => {
+    const newFavorites = new Set(localFavorites);
+    if (newFavorites.has(selectedRestroom.id)) {
+      newFavorites.delete(selectedRestroom.id);
+    } else {
+      newFavorites.add(selectedRestroom.id);
+    }
+    setLocalFavorites(newFavorites);
+  };
+
+  const updateUserFavorites = async () => {
     try {
-      let updatedUser;
-      const favoriteRestrooms = user.favoriteRestrooms || [];
-      if (favoriteRestrooms.includes(selectedRestroom.id)) {
-        updatedUser = await removeUserFavorite(user.id, selectedRestroom.id);
-      } else {
-        updatedUser = await addUserFavorite(user.id, selectedRestroom.id);
-      }
-      setUser(updatedUser); // Update the user context with the updated user
-      
-      // Update the local state immediately
-      setSelectedRestroom(prevRestroom => ({
-        ...prevRestroom,
-        isFavorite: !favoriteRestrooms.includes(prevRestroom.id)
-      }));
+      const favoritesArray = Array.from(localFavorites);
+      const newUser = { ...user, favoriteRestrooms: favoritesArray };
+      setUser(newUser);
+
+      const addFavoritePromises = favoritesArray
+        .filter(id => !user.favoriteRestrooms?.includes(id))
+        .map(id => addUserFavorite(user.id, id));
+
+      const removeFavoritePromises = (user.favoriteRestrooms || [])
+        .filter(id => !favoritesArray.includes(id))
+        .map(id => removeUserFavorite(user.id, id));
+
+      await Promise.all([...addFavoritePromises, ...removeFavoritePromises]);
     } catch (error) {
-      console.error('Error toggling favorite:', error);
+      console.error('Error updating user favorites:', error);
     }
   };
 
@@ -168,7 +182,7 @@ const MainPage = () => {
           >
             <MapboxGL.Camera
               defaultSettings={{
-                centerCoordinate: [-118.2842911, 34.0213524], // Coordinates for Los Angeles
+                centerCoordinate: [-118.2842911, 34.0213524],
                 zoomLevel: 14,
               }}
               ref={cameraRef}
@@ -234,7 +248,7 @@ const MainPage = () => {
             <View style={styles.favoriteButtonContainer}>
               <TouchableOpacity style={styles.favoriteButton} onPress={handleToggleFavorite}>
                 <Text style={styles.favoriteButtonText}>
-                  {user.favoriteRestrooms && user.favoriteRestrooms.includes(selectedRestroom.id) ? 'Unfavorite' : 'Favorite'}
+                  {localFavorites.has(selectedRestroom.id) ? 'Unfavorite' : 'Favorite'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -283,22 +297,22 @@ const styles = StyleSheet.create({
   navigateButton: {
     backgroundColor: 'white',
     borderRadius: 5,
-    width: 60, // Increased width to fit new button text
-    height: 45, // Set the height to match the width
+    width: 60,
+    height: 45,
     marginVertical: 5,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 2,
   },
   navigateText: {
-    fontSize: 10, // Adjusted font size to fit new button text
+    fontSize: 10,
     fontWeight: 'bold',
   },
   zoomButton: {
     backgroundColor: 'white',
     borderRadius: 5,
-    width: 45, // Set the width to create a square
-    height: 45, // Set the height to match the width
+    width: 45,
+    height: 45,
     marginVertical: 5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -341,10 +355,10 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     paddingHorizontal: 20,
-    paddingTop: 10, // Adjusted top padding
+    paddingTop: 10,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    justifyContent: 'flex-start', // Align items to the top
+    justifyContent: 'flex-start',
   },
   modalTitle: {
     fontSize: 24,
@@ -381,7 +395,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     height: '100%',
-    width: '33%', // 1/3 of the width
+    width: '33%',
     backgroundColor: 'white',
     padding: 20,
     elevation: 20,
@@ -404,9 +418,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   circleButton: {
-    width: 30, // 2/3 of original 45
-    height: 30, // 2/3 of original 45
-    borderRadius: 15, // 2/3 of original 22.5
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: 'blue',
     alignItems: 'center',
     justifyContent: 'center',
@@ -415,7 +429,7 @@ const styles = StyleSheet.create({
   },
   circleButtonText: {
     color: 'white',
-    fontSize: 16, // 2/3 of original 24
+    fontSize: 16,
     fontWeight: 'bold',
   },
   searchBar: {
