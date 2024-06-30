@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { registerUser } from './api';
 import { UserContext } from './UserContext';
+import Geolocation from '@react-native-community/geolocation';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 const SignUp = ({ navigation }) => {
     const [firstName, setFirstName] = useState('');
@@ -93,14 +95,68 @@ const SignUp = ({ navigation }) => {
             const response = await registerUser(user);
             if (response.success) {
                 setUser(response.user);
-                Alert.alert('Success', 'Account created successfully');
-                navigation.navigate('MainPage');
+                requestLocationPermission();
             } else {
                 setGeneralError('Account already exists');
             }
         } catch (error) {
             setGeneralError('An error occurred. Please try again.');
         }
+    };
+
+    const requestLocationPermission = async () => {
+        try {
+            console.log('Requesting location permission...');
+            const status = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+            if (status === RESULTS.DENIED || status === RESULTS.LIMITED) {
+                const permissionStatus = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+                console.log('Permission status after request:', permissionStatus);
+                if (permissionStatus === RESULTS.GRANTED) {
+                    getLocation();
+                } else {
+                    showSuccessAlert();
+                }
+            } else if (status === RESULTS.GRANTED) {
+                console.log('Location permission already granted.');
+                getLocation();
+            } else {
+                console.log('Location permission denied.');
+                showSuccessAlert();
+            }
+        } catch (error) {
+            console.error('Error checking/requesting location permission:', error);
+            showSuccessAlert();
+        }
+    };
+
+    const getLocation = () => {
+        console.log('Getting location...');
+        Geolocation.getCurrentPosition(
+            position => {
+                const { latitude, longitude } = position.coords;
+                console.log('Location obtained:', latitude, longitude);
+                setUser(prevState => ({ ...prevState, location: { latitude, longitude } }));
+                showSuccessAlert();
+            },
+            error => {
+                console.error('Geolocation error:', error);
+                Alert.alert('Error', 'Failed to get your location', [
+                    {
+                        text: 'OK',
+                        onPress: () => navigation.navigate('MainPage'),
+                    },
+                ]);
+            }
+        );
+    };
+
+    const showSuccessAlert = () => {
+        Alert.alert('Success', 'Account created successfully', [
+            {
+                text: 'OK',
+                onPress: () => navigation.navigate('MainPage'),
+            },
+        ]);
     };
 
     return (
