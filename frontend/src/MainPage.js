@@ -168,12 +168,22 @@ const MainPage = () => {
           >
             <MapboxGL.Camera
               defaultSettings={{
-                centerCoordinate: [-118.2842911, 34.0213524], // Coordinates for Los Angeles
+                centerCoordinate: user.location ? [user.location.longitude, user.location.latitude] : [-118.2842911, 34.0213524],
                 zoomLevel: 14,
               }}
               ref={cameraRef}
               zoomLevel={zoomLevel}
             />
+            {user.location && (
+              <MapboxGL.PointAnnotation
+                id="userLocation"
+                coordinate={[user.location.longitude, user.location.latitude]}
+              >
+                <View style={styles.annotationContainer}>
+                  <View style={styles.annotationFill} />
+                </View>
+              </MapboxGL.PointAnnotation>
+            )}
             {restrooms.map((restroom, index) => (
               <MapboxGL.PointAnnotation
                 key={`pin-${index}`}

@@ -21,6 +21,18 @@ end
 # Require the resolved path
 require resolve_react_native_pods_rb
 
+# Add the permissions setup script
+def node_require(script)
+  require Pod::Executable.execute_command('node', ['-p',
+    "require.resolve(
+      '#{script}',
+      {paths: [process.argv[1]]},
+    )", __dir__]).strip
+end
+
+node_require('react-native/scripts/react_native_pods.rb')
+node_require('react-native-permissions/scripts/setup.rb')
+
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
@@ -38,6 +50,19 @@ target 'Toilet2Go' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+
+  # Explicitly set the MapboxMaps and Turf versions to resolve conflicts
+  pod 'MapboxMaps', '~> 10.18.2'
+  pod 'Turf', '~> 2.8.0'
+
+  # Add react-native-permissions
+  pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
+
+  # Call setup_permissions with the required permissions
+  setup_permissions([
+    'LocationWhenInUse', # Add this line to include the LocationWhenInUse permission
+    # Other permissions you might need
+  ])
 
   target 'Toilet2GoTests' do
     inherit! :complete
