@@ -19,10 +19,12 @@ const restroomSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    reviews: [reviewSchema]
+    reviews: [reviewSchema],
+    images: [String] // Add an array for image URLs
 });
 
-restroomSchema.methods.calculateAverageRating = function() {
+
+restroomSchema.methods.calculateAverageRating = function () {
     if (this.reviews.length === 0) {
         this.rating = 0;
     } else {

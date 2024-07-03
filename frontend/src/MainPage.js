@@ -228,10 +228,22 @@ const MainPage = () => {
           <View style={styles.modalContainer}>
             <ScrollView contentContainerStyle={styles.modalContent}>
               <Text style={styles.modalTitle}>{selectedRestroom.name} ({selectedRestroom.rating.toFixed(1)}*)</Text>
-              <Image
-                source={{ uri: 'https://via.placeholder.com/150' }}
-                style={styles.tempImage}
-              />
+              <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                {selectedRestroom.images && selectedRestroom.images.length > 0 ? (
+                  selectedRestroom.images.map((image, index) => (
+                    <Image
+                      key={index}
+                      source={{ uri: image }}
+                      style={styles.image}
+                    />
+                  ))
+                ) : (
+                  <Image
+                    source={{ uri: 'https://via.placeholder.com/150' }}
+                    style={styles.tempImage}
+                  />
+                )}
+              </ScrollView>
               <Text style={styles.modalSectionTitle}>Reviews:</Text>
               <View style={styles.separator} />
               {selectedRestroom.reviews.map((review, index) => (
@@ -366,10 +378,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
   },
+  image: {
+    width: 150,
+    height: 150,
+    marginRight: 10,
+    borderRadius: 5,
+  },
   tempImage: {
-    width: '100%',
-    height: 100,
-    marginVertical: 10,
+    width: 150,
+    height: 150,
+    marginRight: 10,
     backgroundColor: '#ccc',
   },
   separator: {
