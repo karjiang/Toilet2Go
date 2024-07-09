@@ -228,22 +228,25 @@ const MainPage = () => {
           <View style={styles.modalContainer}>
             <ScrollView contentContainerStyle={styles.modalContent}>
               <Text style={styles.modalTitle}>{selectedRestroom.name} ({selectedRestroom.rating.toFixed(1)}*)</Text>
-              <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                {selectedRestroom.images && selectedRestroom.images.length > 0 ? (
-                  selectedRestroom.images.map((image, index) => (
+              <Text style={styles.imagesTitle}>Images ({selectedRestroom.images ? selectedRestroom.images.length : 0}):</Text>
+              {selectedRestroom.images && selectedRestroom.images.length > 1 ? (
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.imagesScroll}>
+                  {selectedRestroom.images.map((image, index) => (
                     <Image
                       key={index}
                       source={{ uri: image }}
                       style={styles.image}
                     />
-                  ))
-                ) : (
+                  ))}
+                </ScrollView>
+              ) : (
+                <View style={styles.singleImageContainer}>
                   <Image
-                    source={{ uri: 'https://via.placeholder.com/150' }}
-                    style={styles.tempImage}
+                    source={{ uri: selectedRestroom.images && selectedRestroom.images.length === 1 ? selectedRestroom.images[0] : 'https://via.placeholder.com/150' }}
+                    style={styles.singleImage}
                   />
-                )}
-              </ScrollView>
+                </View>
+              )}
               <Text style={styles.modalSectionTitle}>Reviews:</Text>
               <View style={styles.separator} />
               {selectedRestroom.reviews.map((review, index) => (
@@ -373,15 +376,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  modalSectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  imagesTitle: {
+    fontSize: 14,
     marginTop: 10,
+  },
+  imagesScroll: {
+    marginVertical: 10,
   },
   image: {
     width: 150,
     height: 150,
     marginRight: 10,
+    borderRadius: 5,
+  },
+  singleImageContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  singleImage: {
+    width: 150,
+    height: 150,
     borderRadius: 5,
   },
   tempImage: {
