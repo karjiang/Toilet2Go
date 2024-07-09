@@ -69,11 +69,11 @@ const MainPage = () => {
   };
 
   const handleNavigateToFavorites = () => {
-    navigation.navigate('Favorites');
+    navigation.navigate('FavoritesPage');
   };
 
   const handleNavigateToReviews = () => {
-    navigation.navigate('Reviews');
+    navigation.navigate('ReviewsPage');
   };
 
   const closeModal = () => {

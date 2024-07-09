@@ -8,6 +8,8 @@ import MainPage from './MainPage';
 import BackendTest from './backendTest';
 import UserProfile from './UserProfile';
 import EditProfile from './EditProfile';
+import FavoritesPage from './FavoritesPage';
+import ReviewsPage from './ReviewsPage';
 import { UserProvider } from './UserContext';
 
 
@@ -37,6 +39,8 @@ const App = () => {
                     <Stack.Screen name="BackendTest" component={BackendTest} />
                     <Stack.Screen name="UserProfile" component={UserProfile} />
                     <Stack.Screen name="EditProfile" component={EditProfile} />
+                    <Stack.Screen name="FavoritesPage" component={FavoritesPage} />
+                    <Stack.Screen name="ReviewsPage" component={ReviewsPage} />
                 </Stack.Navigator>
             </NavigationContainer>
         </UserProvider>
