@@ -107,4 +107,35 @@ router.delete('/:id/favorites', async (req, res) => {
     }
 });
 
+// Update user
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { firstName, lastName, username, email, password } = req.body;
+        const updateData = {};
+
+        if (firstName) updateData.firstName = firstName;
+        if (lastName) updateData.lastName = lastName;
+        if (username) updateData.username = username;
+        if (email) updateData.email = email;
+        if (password) updateData.password = password;
+
+        console.log('Received update request for user ID:', id);
+        console.log('Update Data:', updateData);
+
+        const updatedUser = await User.findOneAndUpdate({ id: parseInt(id) }, updateData, { new: true });
+
+        if (!updatedUser) {
+            console.log('User not found');
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        console.log('Updated User:', updatedUser);
+        res.json(updatedUser);
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Failed to update user' });
+    }
+});
+
 module.exports = router;

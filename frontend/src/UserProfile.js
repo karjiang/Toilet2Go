@@ -1,9 +1,14 @@
 import React, { useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { UserContext } from './UserContext';
+import { useNavigation } from '@react-navigation/native';
 
 const UserProfile = () => {
+    const navigation = useNavigation();
     const { user } = useContext(UserContext);
+    const editProfilePress = () => {
+        navigation.navigate('EditProfile');
+    };
 
     return (
         <View style={styles.container}>
@@ -13,7 +18,9 @@ const UserProfile = () => {
                 </View>
                 <Text style={styles.name}>{`${user.firstName} ${user.lastName}`}</Text>
             </View>
-
+            <TouchableOpacity style={styles.button} onPress={editProfilePress}>
+                <Text style={styles.buttonText}>Edit Profile</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -45,24 +52,18 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 18,
-        marginBottom: 10,
-    },
-    itemContainer: {
-        marginBottom: 20,
-        padding: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
+    button: {
+        backgroundColor: '#007bff',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
         borderRadius: 5,
+        alignItems: 'center',
+        marginTop: 'auto',
     },
-    itemText: {
+    buttonText: {
+        color: 'white',
         fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 

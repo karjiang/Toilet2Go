@@ -81,6 +81,17 @@ export const removeUserFavorite = async (userId, restroomId) => {
     }
 };
 
+
+export const updateUser = async (userId, userData) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/users/${userId}`, userData);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating user', error);
+        throw error;
+    }
+};
+
 /************ RESTROOMS  ****************/ 
 export const getRestrooms = async () => {
     try {

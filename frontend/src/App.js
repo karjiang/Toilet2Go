@@ -7,7 +7,9 @@ import SignUp from './SignUp';
 import MainPage from './MainPage';
 import BackendTest from './backendTest';
 import UserProfile from './UserProfile';
+import EditProfile from './EditProfile';
 import { UserProvider } from './UserContext';
+
 
 const HomeScreen = ({ navigation }) => {
     const handlePress = () => {
@@ -34,6 +36,7 @@ const App = () => {
                     <Stack.Screen name="MainPage" component={MainPage} />
                     <Stack.Screen name="BackendTest" component={BackendTest} />
                     <Stack.Screen name="UserProfile" component={UserProfile} />
+                    <Stack.Screen name="EditProfile" component={EditProfile} />
                 </Stack.Navigator>
             </NavigationContainer>
         </UserProvider>

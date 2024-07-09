@@ -1,17 +1,16 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { registerUser } from './api';
+import React, { useContext, useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { UserContext } from './UserContext';
-import Geolocation from '@react-native-community/geolocation';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { updateUser } from './api';
 
-const SignUp = ({ navigation }) => {
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [username, setUsername] = useState('');
+const EditProfile = () => {
+    const { user, setUser } = useContext(UserContext);
+    const [firstName, setFirstName] = useState(user.firstName);
+    const [lastName, setLastName] = useState(user.lastName);
+    const [username, setUsername] = useState(user.username);
+    const [email, setEmail] = useState(user.email);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [email, setEmail] = useState('');
 
     const [firstNameError, setFirstNameError] = useState('');
     const [lastNameError, setLastNameError] = useState('');
@@ -21,9 +20,7 @@ const SignUp = ({ navigation }) => {
     const [emailError, setEmailError] = useState('');
     const [generalError, setGeneralError] = useState('');
 
-    const { setUser } = useContext(UserContext);
-
-    const handleSignUp = async () => {
+    const handleSaveChanges = async () => {
         let hasError = false;
 
         // Clear previous error messages
@@ -59,109 +56,56 @@ const SignUp = ({ navigation }) => {
             hasError = true;
         }
 
-        if (!password) {
-            setPasswordError('Password is required');
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setEmailError('Invalid email address');
             hasError = true;
         }
 
-        if (!confirmPassword) {
-            setConfirmPasswordError('Confirm Password is required');
-            hasError = true;
-        }
-
-        if (password && confirmPassword && password !== confirmPassword) {
+        if (password && (!confirmPassword || password !== confirmPassword)) {
             setConfirmPasswordError('Passwords do not match');
             hasError = true;
-        }
-
-        if (!email) {
-            setEmailError('Email is required');
-            hasError = true;
-        } else {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                setEmailError('Invalid email address');
-                hasError = true;
-            }
         }
 
         if (hasError) {
             return;
         }
 
-        // If all checks pass, proceed with sign-up logic
+        const updateData = {};
+        if (firstName && firstName !== user.firstName) updateData.firstName = firstName;
+        if (lastName && lastName !== user.lastName) updateData.lastName = lastName;
+        if (username && username !== user.username) updateData.username = username;
+        if (email && email !== user.email) updateData.email = email;
+        if (password) updateData.password = password;
+
+        if (Object.keys(updateData).length === 0) {
+            Alert.alert('Error', 'No changes to save');
+            return;
+        }
+
+        console.log('Update Data:', updateData);
+
         try {
-            const user = { firstName, lastName, username, password, email };
-            const response = await registerUser(user);
-            if (response.success) {
-                setUser(response.user);
-                requestLocationPermission();
-            } else {
-                setGeneralError('Account already exists');
-            }
+            const updatedUser = await updateUser(user.id, updateData);
+            setUser(updatedUser);
+            Alert.alert('Success', 'Profile updated successfully');
         } catch (error) {
-            setGeneralError('An error occurred. Please try again.');
+            console.error('Error updating profile:', error.response ? error.response.data : error.message);
+            Alert.alert('Error', 'Failed to update profile');
         }
     };
 
-    const requestLocationPermission = async () => {
-        try {
-            console.log('Requesting location permission...');
-            const status = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-            if (status === RESULTS.DENIED || status === RESULTS.LIMITED) {
-                const permissionStatus = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-                console.log('Permission status after request:', permissionStatus);
-                if (permissionStatus === RESULTS.GRANTED) {
-                    getLocation();
-                } else {
-                    showSuccessAlert();
-                }
-            } else if (status === RESULTS.GRANTED) {
-                console.log('Location permission already granted.');
-                getLocation();
-            } else {
-                console.log('Location permission denied.');
-                showSuccessAlert();
-            }
-        } catch (error) {
-            console.error('Error checking/requesting location permission:', error);
-            showSuccessAlert();
-        }
-    };
-
-    const getLocation = () => {
-        console.log('Getting location...');
-        Geolocation.getCurrentPosition(
-            position => {
-                const { latitude, longitude } = position.coords;
-                console.log('Location obtained:', latitude, longitude);
-                setUser(prevState => ({ ...prevState, location: { latitude, longitude } }));
-                showSuccessAlert();
-            },
-            error => {
-                console.error('Geolocation error:', error);
-                Alert.alert('Error', 'Failed to get your location', [
-                    {
-                        text: 'OK',
-                        onPress: () => navigation.navigate('MainPage'),
-                    },
-                ]);
-            }
-        );
-    };
-
-    const showSuccessAlert = () => {
-        Alert.alert('Success', 'Account created successfully', [
-            {
-                text: 'OK',
-                onPress: () => navigation.navigate('MainPage'),
-            },
-        ]);
+    const handleCancel = () => {
+        setFirstName(user.firstName);
+        setLastName(user.lastName);
+        setUsername(user.username);
+        setEmail(user.email);
+        setPassword('');
+        setConfirmPassword('');
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Sign Up</Text>
+            <Text style={styles.title}>Edit Profile</Text>
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>First Name <Text style={styles.required}>*</Text></Text>
                 <TextInput
@@ -208,7 +152,7 @@ const SignUp = ({ navigation }) => {
                 {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
             </View>
             <View style={styles.inputContainer}>
-                <Text style={styles.label}>Password <Text style={styles.required}>*</Text></Text>
+                <Text style={styles.label}>Password</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
@@ -221,7 +165,7 @@ const SignUp = ({ navigation }) => {
                 {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
             </View>
             <View style={styles.inputContainer}>
-                <Text style={styles.label}>Confirm Password <Text style={styles.required}>*</Text></Text>
+                <Text style={styles.label}>Confirm Password</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Confirm Password"
@@ -233,12 +177,13 @@ const SignUp = ({ navigation }) => {
                 />
                 {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
             </View>
-            <Button title="Sign Up" onPress={handleSignUp} />
             {generalError ? <Text style={styles.errorText}>{generalError}</Text> : null}
-            <View style={styles.loginContainer}>
-                <Text style={styles.loginText}>Already have an Account? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                    <Text style={styles.loginLink}>Login</Text>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.button} onPress={handleSaveChanges}>
+                    <Text style={styles.buttonText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
+                    <Text style={styles.buttonText}>Cancel</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -248,14 +193,13 @@ const SignUp = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         padding: 16,
-        marginBottom: 150,
+        backgroundColor: 'white',
     },
     title: {
         fontSize: 24,
-        marginBottom: 16,
+        fontWeight: 'bold',
+        marginBottom: 20,
     },
     inputContainer: {
         width: '100%',
@@ -280,17 +224,27 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginTop: 4,
     },
-    loginContainer: {
+    buttonContainer: {
         flexDirection: 'row',
-        marginTop: 5,
+        justifyContent: 'space-between',
+        marginTop: 20,
     },
-    loginText: {
-        fontSize: 16,
+    button: {
+        backgroundColor: 'blue',
+        padding: 12,
+        borderRadius: 5,
+        alignItems: 'center',
+        flex: 1,
+        marginHorizontal: 5,
     },
-    loginLink: {
+    cancelButton: {
+        backgroundColor: 'red',
+    },
+    buttonText: {
+        color: 'white',
         fontSize: 16,
-        color: 'blue',
+        fontWeight: 'bold',
     },
 });
 
-export default SignUp;
+export default EditProfile;
