@@ -72,6 +72,10 @@ const MainPage = () => {
     navigation.navigate('FavoritesPage');
   };
 
+  const handleNavigateToSuggest = () => {
+    navigation.navigate('SuggestRestroom');
+  };
+
   const handleNavigateToReviews = () => {
     navigation.navigate('ReviewsPage');
   };
@@ -201,6 +205,9 @@ const MainPage = () => {
       </TouchableWithoutFeedback>
 
       <View style={styles.zoomControls}>
+      <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToSuggest}>
+          <Text style={styles.navigateText}>Suggest</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToBackendTest}>
           <Text style={styles.navigateText}>Backend</Text>
         </TouchableOpacity>

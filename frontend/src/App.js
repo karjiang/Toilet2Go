@@ -10,6 +10,7 @@ import UserProfile from './UserProfile';
 import EditProfile from './EditProfile';
 import FavoritesPage from './FavoritesPage';
 import ReviewsPage from './ReviewsPage';
+import SuggestRestroom from './SuggestRestroom';
 import { UserProvider } from './UserContext';
 
 
@@ -41,6 +42,7 @@ const App = () => {
                     <Stack.Screen name="EditProfile" component={EditProfile} />
                     <Stack.Screen name="FavoritesPage" component={FavoritesPage} />
                     <Stack.Screen name="ReviewsPage" component={ReviewsPage} />
+                    <Stack.Screen name="SuggestRestroom" component={SuggestRestroom} />
                 </Stack.Navigator>
             </NavigationContainer>
         </UserProvider>
