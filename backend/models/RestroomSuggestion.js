@@ -1,3 +1,4 @@
+// models/restroomSuggestion.js
 const mongoose = require('mongoose');
 
 const restroomSuggestionSchema = new mongoose.Schema({
@@ -10,10 +11,6 @@ const restroomSuggestionSchema = new mongoose.Schema({
         default: 1
     },
     suggestedBy: [String], // Store user IDs who suggested this restroom
-    approved: {
-        type: Boolean,
-        default: false
-    }
 });
 
 const RestroomSuggestion = mongoose.model('RestroomSuggestion', restroomSuggestionSchema);

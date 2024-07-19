@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, Image } from 'react-native';
 import * as ImagePicker from 'react-native-image-picker';
 import axios from 'axios';
 
@@ -29,7 +29,7 @@ const SuggestRestroom = ({ navigation }) => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/restroom-suggestions', formData, {
+            const response = await axios.post('http://localhost:5000/suggest', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

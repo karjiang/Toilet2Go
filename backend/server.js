@@ -7,8 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const mongoURI = 'mongodb+srv://karljiang:Karljiang12@cluster0.yehicjl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; // Replace with your MongoDB connection string
-
+const mongoURI = 'mongodb+srv://karljiang:Karljiang12@cluster0.yehicjl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected'))
@@ -17,9 +16,11 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 // Routes
 const userRoutes = require('./routes/users');
 const restroomRoutes = require('./routes/restrooms');
+const suggestRoutes = require('./routes/restroomSuggestions');
 
 app.use('/users', userRoutes);
 app.use('/restrooms', restroomRoutes);
+app.use('/suggest', suggestRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ error: 'Not Found' });
