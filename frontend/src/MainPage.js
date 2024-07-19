@@ -4,7 +4,6 @@ import MapboxGL from '@rnmapbox/maps';
 import { MAPBOX_ACCESS_TOKEN } from '@env';
 import axios from 'axios';
 import { getRestrooms, addUserFavorite, removeUserFavorite } from './api'; // Import removeUserFavorite
-import 'react-native-console-time-polyfill';
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from './UserContext'; // Import UserContext
 
@@ -13,7 +12,7 @@ MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const MainPage = () => {
   const navigation = useNavigation();
-  const { user, setUser } = useContext(UserContext); // Use UserContext
+  const { user, setUser, updateUserLocation } = useContext(UserContext); // Use UserContext
   const mapViewRef = useRef(null);
   const cameraRef = useRef(null);
   const [zoomLevel, setZoomLevel] = useState(14);
@@ -25,6 +24,7 @@ const MainPage = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
+    updateUserLocation(); // Get user location when component mounts
     fetchRestrooms();
   }, []);
 
@@ -79,6 +79,10 @@ const MainPage = () => {
   const handleNavigateToReviews = () => {
     navigation.navigate('ReviewsPage');
   };
+
+  const handleNavigateFilter = () => {
+    navigation.navigate('Filters');
+  }
 
   const closeModal = () => {
     setModalVisible(false);
@@ -137,6 +141,16 @@ const MainPage = () => {
       }));
     } catch (error) {
       console.error('Error toggling favorite:', error);
+    }
+  };
+
+  const handleRecenter = () => {
+    if (user.location) {
+      cameraRef.current.setCamera({
+        centerCoordinate: [user.location.longitude, user.location.latitude],
+        zoomLevel: 14,
+        animationDuration: 300,
+      });
     }
   };
 
@@ -205,7 +219,13 @@ const MainPage = () => {
       </TouchableWithoutFeedback>
 
       <View style={styles.zoomControls}>
-      <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToSuggest}>
+        <TouchableOpacity style={styles.zoomButton} onPress={handleRecenter}>
+          <Text style={styles.navigateText}>Recenter</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateFilter}>
+          <Text style={styles.navigateText}>Filters</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToSuggest}>
           <Text style={styles.navigateText}>Suggest</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.zoomButton} onPress={handleNavigateToBackendTest}>

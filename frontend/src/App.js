@@ -11,7 +11,9 @@ import EditProfile from './EditProfile';
 import FavoritesPage from './FavoritesPage';
 import ReviewsPage from './ReviewsPage';
 import SuggestRestroom from './SuggestRestroom';
+import Filters from './Filters';
 import { UserProvider } from './UserContext';
+
 
 
 const HomeScreen = ({ navigation }) => {
@@ -43,6 +45,7 @@ const App = () => {
                     <Stack.Screen name="FavoritesPage" component={FavoritesPage} />
                     <Stack.Screen name="ReviewsPage" component={ReviewsPage} />
                     <Stack.Screen name="SuggestRestroom" component={SuggestRestroom} />
+                    <Stack.Screen name="Filters" component={Filters} />
                 </Stack.Navigator>
             </NavigationContainer>
         </UserProvider>
