@@ -1242,6 +1242,8 @@ PODS:
     - React-logger (= 0.74.1)
     - React-perflogger (= 0.74.1)
     - React-utils (= 0.74.1)
+  - RNCPicker (2.7.7):
+    - React-Core
   - RNGestureHandler (2.17.1):
     - DoubleConversion
     - glog
@@ -1365,6 +1367,7 @@ DEPENDENCIES:
   - React-runtimescheduler (from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`)
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "rnmapbox-maps (from `../node_modules/@rnmapbox/maps`)"
   - RNPermissions (from `../node_modules/react-native-permissions`)
@@ -1501,6 +1504,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/utils"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNCPicker:
+    :path: "../node_modules/@react-native-picker/picker"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   rnmapbox-maps:
@@ -1576,6 +1581,7 @@ SPEC CHECKSUMS:
   React-runtimescheduler: e2152ed146b6a35c07386fc2ac4827b27e6aad12
   React-utils: 3285151c9d1e3a28a9586571fc81d521678c196d
   ReactCommon: f42444e384d82ab89184aed5d6f3142748b54768
+  RNCPicker: b7873ba797dc586bfaf3307d737cbdc620a9ff3e
   RNGestureHandler: 8dbcccada4a7e702e7dec9338c251b1cf393c960
   rnmapbox-maps: 96476b4cb703f9b1cfea97b87ed7da180189d8a0
   RNPermissions: 655678c54391137c08a833d54f7adbcfc13f0f27
@@ -1584,6 +1590,6 @@ SPEC CHECKSUMS:
   Turf: aa2ede4298009639d10db36aba1a7ebaad072a5e
   Yoga: b9a182ab00cf25926e7f79657d08c5d23c2d03b0
 
-PODFILE CHECKSUM: 98c017e5d7cce89587bb235caeaf746a5d25c65d
+PODFILE CHECKSUM: 86805b0a48023b31858a7dcadcbec51dc92ec2c3
 
 COCOAPODS: 1.15.2

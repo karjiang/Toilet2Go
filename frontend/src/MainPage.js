@@ -3,28 +3,27 @@ import { View, StyleSheet, TouchableOpacity, Text, Modal, TextInput, Animated, T
 import MapboxGL from '@rnmapbox/maps';
 import { MAPBOX_ACCESS_TOKEN } from '@env';
 import axios from 'axios';
-import { getRestrooms, addUserFavorite, removeUserFavorite } from './api'; // Import removeUserFavorite
+import { getRestrooms, addUserFavorite, removeUserFavorite } from './api';
 import { useNavigation } from '@react-navigation/native';
-import { UserContext } from './UserContext'; // Import UserContext
+import { UserContext } from './UserContext';
 
-// Set the Mapbox access token
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const MainPage = () => {
   const navigation = useNavigation();
-  const { user, setUser, updateUserLocation } = useContext(UserContext); // Use UserContext
+  const { user, setUser, updateUserLocation } = useContext(UserContext);
   const mapViewRef = useRef(null);
   const cameraRef = useRef(null);
   const [zoomLevel, setZoomLevel] = useState(14);
   const [restrooms, setRestrooms] = useState([]);
   const [selectedRestroom, setSelectedRestroom] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const slideAnim = useRef(new Animated.Value(-100)).current; // Initial value for sliding menu
+  const slideAnim = useRef(new Animated.Value(-100)).current;
   const [searchQuery, setSearchQuery] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    updateUserLocation(); // Get user location when component mounts
+    updateUserLocation();
     fetchRestrooms();
   }, []);
 
@@ -82,7 +81,7 @@ const MainPage = () => {
 
   const handleNavigateFilter = () => {
     navigation.navigate('Filters');
-  }
+  };
 
   const closeModal = () => {
     setModalVisible(false);
@@ -115,7 +114,7 @@ const MainPage = () => {
         cameraRef.current.setCamera({
           centerCoordinate: [longitude, latitude],
           zoomLevel: 14,
-          animationDuration: 1000, // 1 second animation duration
+          animationDuration: 1000,
         });
       }
     } catch (error) {
@@ -132,9 +131,8 @@ const MainPage = () => {
       } else {
         updatedUser = await addUserFavorite(user.id, selectedRestroom.id);
       }
-      setUser(updatedUser); // Update the user context with the updated user
-      
-      // Update the local state immediately
+      setUser(updatedUser);
+
       setSelectedRestroom(prevRestroom => ({
         ...prevRestroom,
         isFavorite: !favoriteRestrooms.includes(prevRestroom.id)
@@ -197,8 +195,8 @@ const MainPage = () => {
                 id="userLocation"
                 coordinate={[user.location.longitude, user.location.latitude]}
               >
-                <View style={styles.annotationContainer}>
-                  <View style={styles.annotationFill} />
+                <View style={styles.userAnnotationContainer}>
+                  <View style={styles.userAnnotationFill} />
                 </View>
               </MapboxGL.PointAnnotation>
             )}
@@ -335,22 +333,22 @@ const styles = StyleSheet.create({
   navigateButton: {
     backgroundColor: 'white',
     borderRadius: 5,
-    width: 60, // Increased width to fit new button text
-    height: 45, // Set the height to match the width
+    width: 60,
+    height: 45,
     marginVertical: 5,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 2,
   },
   navigateText: {
-    fontSize: 10, // Adjusted font size to fit new button text
+    fontSize: 10,
     fontWeight: 'bold',
   },
   zoomButton: {
     backgroundColor: 'white',
     borderRadius: 5,
-    width: 45, // Set the width to create a square
-    height: 45, // Set the height to match the width
+    width: 45,
+    height: 45,
     marginVertical: 5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -376,6 +374,22 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.6 }],
     borderRadius: 15,
   },
+  userAnnotationContainer: {
+    width: 30,
+    height: 30,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: 'red',
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  userAnnotationFill: {
+    width: 30,
+    height: 30,
+    backgroundColor: 'red',
+    transform: [{ scale: 0.6 }],
+    borderRadius: 15,
+  },
   modalContainer: {
     position: 'absolute',
     bottom: 0,
@@ -393,10 +407,10 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     paddingHorizontal: 20,
-    paddingTop: 10, // Adjusted top padding
+    paddingTop: 10,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    justifyContent: 'flex-start', // Align items to the top
+    justifyContent: 'flex-start',
   },
   modalTitle: {
     fontSize: 24,
@@ -451,7 +465,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     height: '100%',
-    width: '33%', // 1/3 of the width
+    width: '33%',
     backgroundColor: 'white',
     padding: 20,
     elevation: 20,
@@ -474,9 +488,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   circleButton: {
-    width: 30, // 2/3 of original 45
-    height: 30, // 2/3 of original 45
-    borderRadius: 15, // 2/3 of original 22.5
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: 'blue',
     alignItems: 'center',
     justifyContent: 'center',
@@ -485,7 +499,7 @@ const styles = StyleSheet.create({
   },
   circleButtonText: {
     color: 'white',
-    fontSize: 16, // 2/3 of original 24
+    fontSize: 16,
     fontWeight: 'bold',
   },
   searchBar: {
