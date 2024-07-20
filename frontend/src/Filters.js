@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
 import { UserContext } from './UserContext';
 import { getRestrooms } from './api';
 
@@ -7,10 +7,20 @@ const Filters = ({ navigation }) => {
     const { user } = useContext(UserContext);
     const [restrooms, setRestrooms] = useState([]);
     const [sortedRestrooms, setSortedRestrooms] = useState([]);
+    const [sortOption, setSortOption] = useState('distance');
+    const [isDropdownVisible, setDropdownVisible] = useState(false);
 
     useEffect(() => {
         fetchRestrooms();
     }, []);
+
+    useEffect(() => {
+        if (sortOption === 'distance') {
+            sortByDistance();
+        } else if (sortOption === 'rating') {
+            sortByRating();
+        }
+    }, [sortOption, restrooms]);
 
     const fetchRestrooms = async () => {
         try {
@@ -76,15 +86,34 @@ const Filters = ({ navigation }) => {
         return deg * (Math.PI / 180);
     };
 
+    const handleDropdownSelect = (option) => {
+        setSortOption(option);
+        setDropdownVisible(false);
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Filters</Text>
-            <TouchableOpacity style={styles.button} onPress={sortByDistance}>
-                <Text style={styles.buttonText}>Sort by Closest Distance</Text>
+            <TouchableOpacity style={styles.dropdownButton} onPress={() => setDropdownVisible(true)}>
+                <Text style={styles.buttonText}>Sort by: {sortOption === 'distance' ? 'Closest Distance' : 'Rating'}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={sortByRating}>
-                <Text style={styles.buttonText}>Sort by Rating</Text>
-            </TouchableOpacity>
+            <Modal
+                transparent={true}
+                visible={isDropdownVisible}
+                animationType="fade"
+                onRequestClose={() => setDropdownVisible(false)}
+            >
+                <TouchableOpacity style={styles.modalOverlay} onPress={() => setDropdownVisible(false)}>
+                    <View style={styles.dropdownContainer}>
+                        <TouchableOpacity style={styles.dropdownOption} onPress={() => handleDropdownSelect('distance')}>
+                            <Text style={styles.optionText}>Closest Distance</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.dropdownOption} onPress={() => handleDropdownSelect('rating')}>
+                            <Text style={styles.optionText}>Rating</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
             <FlatList
                 data={sortedRestrooms}
                 keyExtractor={(item) => item.id.toString()}
@@ -112,7 +141,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 20,
     },
-    button: {
+    dropdownButton: {
         backgroundColor: 'blue',
         padding: 10,
         borderRadius: 5,
@@ -122,6 +151,26 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlign: 'center',
         fontWeight: 'bold',
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    dropdownContainer: {
+        backgroundColor: 'white',
+        borderRadius: 5,
+        width: '80%',
+        maxHeight: '50%',
+    },
+    dropdownOption: {
+        padding: 10,
+        borderBottomColor: '#ccc',
+        borderBottomWidth: 1,
+    },
+    optionText: {
+        fontSize: 18,
     },
     restroomItem: {
         padding: 10,
