@@ -7,7 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const mongoURI = 'mongodb+srv://karljiang:Karljiang12@cluster0.yehicjl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const mongoURI = ;
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected'))
